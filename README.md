@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AI-Powered Behavioral Anomaly Detection for Cybersecurity
 
 This is the repository for the AI-Powered Behavioral Anomaly Detection hackathon project.
@@ -39,3 +40,6 @@ A machine learning pipeline for detecting cybersecurity behavioral anomalies suc
     ```bash
     uvicorn anomaly_detection.api.main:app --reload
     ```
+=======
+# AnamolyDetection
+>>>>>>> aec4b9b3794289a951a2165187cd880b25364074
