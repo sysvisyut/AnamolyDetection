@@ -1,0 +1,17 @@
+# default.yaml
+# Tier 1 baseline configuration
+
+app_name: "anomaly_detection"
+version: "0.1.0"
+
+generation:
+  num_entities: 500
+  days_of_data: 30
+  attack_injection_rate: 0.015
+
+model_params:
+  bpm_n_estimators: 200
+  bpm_contamination: 0.01
+  sdm_hidden_size: 64
+  sdm_num_layers: 2
+  fusion_threshold: 0.5
