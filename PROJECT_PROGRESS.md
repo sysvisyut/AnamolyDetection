@@ -9,7 +9,7 @@
 | Module ID | Module Name | Tier | Status | Completion % | Blocker | Notes |
 |-----------|-------------|------|--------|--------------|---------|-------|
 | M01 | Project Scaffolding & Configuration | T1 | Complete | 100% | None | Scaffolding complete; tests passing. |
-| M02 | Core Data Contracts & Validators | T1 | Pending | 0% | None | |
+| M02 | Core Data Contracts & Validators | T1 | Complete | 100% | None | Models implemented per M02 spec, 100% coverage. |
 | M03 | Synthetic Data Gen (Core & Profiles) | T1 | Pending | 0% | None | |
 | M04 | Synthetic Data Gen (Attack Injection) | T1 | Pending | 0% | None | |
 | M05 | Entity Profile & Alert Stores | T1 | Pending | 0% | None | |
