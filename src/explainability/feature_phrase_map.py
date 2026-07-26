@@ -5,22 +5,22 @@ Contains the HUMAN_LABEL_MAP used to translate technical features into narrative
 
 # Mapping dictionary for all 24 feature dimensions
 HUMAN_LABEL_MAP = {
-    "hour_of_day_sin": {
+    "hour_sin": {
         "human_label": "Login time (hour of day)",
         "toward_anomaly": "an off-hours login at {value} UTC",
         "toward_normal": "login during normal hours"
     },
-    "hour_of_day_cos": {
+    "hour_cos": {
         "human_label": "Login time (hour cycle)",
         "toward_anomaly": "an off-hours login at {value} UTC",
         "toward_normal": "login during normal hours"
     },
-    "day_of_week_sin": {
+    "dow_sin": {
         "human_label": "Day of week",
         "toward_anomaly": "unusual {value} access",
         "toward_normal": "access on a normal workday"
     },
-    "day_of_week_cos": {
+    "dow_cos": {
         "human_label": "Day of week",
         "toward_anomaly": "unusual {value} access",
         "toward_normal": "access on a normal workday"
@@ -35,7 +35,7 @@ HUMAN_LABEL_MAP = {
         "toward_anomaly": "{value} consecutive authentication failures",
         "toward_normal": "no unusual authentication failures"
     },
-    "geo_velocity_kmph": {
+    "geo_velocity_norm": {
         "human_label": "Speed between logins (km/h)",
         "toward_anomaly": "a geo-velocity of {value} km/h between consecutive logins",
         "toward_normal": "normal login locations"

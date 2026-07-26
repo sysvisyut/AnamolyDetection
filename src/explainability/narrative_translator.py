@@ -35,7 +35,7 @@ class NarrativeTranslator:
         """
         Denormalizes values for narrative inclusion based on the feature type.
         """
-        if feature_name == "geo_velocity_kmph":
+        if feature_name == "geo_velocity_norm":
             return round(value * 2000)
         elif feature_name == "failure_count_norm":
             return round(value * 20)

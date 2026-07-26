@@ -1,0 +1,332 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.5, pytest-8.4.2, pluggy-1.6.0
+rootdir: /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection
+configfile: pyproject.toml
+plugins: asyncio-0.23.8, cov-5.0.0, anyio-4.14.2, Faker-40.36.0
+asyncio: mode=Mode.STRICT
+collected 5 items
+
+tests/api/test_inference_router.py FFFFF                                 [100%]
+
+=================================== FAILURES ===================================
+________________________ test_inference_router_success _________________________
+
+async_client = <async_generator object async_client at 0x152c8ce50>
+valid_event_payload = {'auth_method': 'password', 'auth_outcome': 'success', 'command_sequence': [], 'delivery_mode': 'batch', ...}
+
+    @pytest.mark.asyncio
+    async def test_inference_router_success(async_client, valid_event_payload):
+        """Test valid single-event inference request returns 200 OK and AlertPayload."""
+        # We test with the actual lifecycle (app state loaded).
+        # Since we are using the real M11 orchestrator, it will generate a score.
+        # We do not mock it, per requirement 4: "proving the M11 orchestrator wiring... is live".
+>       response = await async_client.post(
+                         ^^^^^^^^^^^^^^^^^
+            "/api/v1/inference/events",
+            json={"events": [valid_event_payload]},
+        )
+E       AttributeError: 'async_generator' object has no attribute 'post'
+
+tests/api/test_inference_router.py:64: AttributeError
+_____________________ test_inference_router_rejects_label ______________________
+
+async_client = <async_generator object async_client at 0x152c8e7a0>
+valid_event_payload = {'auth_method': 'password', 'auth_outcome': 'success', 'command_sequence': [], 'delivery_mode': 'batch', ...}
+
+    @pytest.mark.asyncio
+    async def test_inference_router_rejects_label(async_client, valid_event_payload):
+        """Test payload containing 'label' is rejected with 422 (Risk 3)."""
+        payload_with_label = valid_event_payload.copy()
+        payload_with_label["label"] = "brute_force"
+    
+>       response = await async_client.post(
+                         ^^^^^^^^^^^^^^^^^
+            "/api/v1/inference/events",
+            json={"events": [payload_with_label]},
+        )
+E       AttributeError: 'async_generator' object has no attribute 'post'
+
+tests/api/test_inference_router.py:82: AttributeError
+___________________ test_inference_router_malformed_payload ____________________
+
+async_client = <async_generator object async_client at 0x152c8e020>
+valid_event_payload = {'auth_method': 'password', 'auth_outcome': 'success', 'command_sequence': [], 'delivery_mode': 'batch', ...}
+
+    @pytest.mark.asyncio
+    async def test_inference_router_malformed_payload(async_client, valid_event_payload):
+        """Test malformed payload returns structured 422."""
+        malformed_payload = valid_event_payload.copy()
+        del malformed_payload["entity_id"]  # Missing required field
+    
+>       response = await async_client.post(
+                         ^^^^^^^^^^^^^^^^^
+            "/api/v1/inference/events",
+            json={"events": [malformed_payload]},
+        )
+E       AttributeError: 'async_generator' object has no attribute 'post'
+
+tests/api/test_inference_router.py:103: AttributeError
+______________ test_inference_consecutive_requests_update_profile ______________
+
+async_client = <async_generator object async_client at 0x152c8f790>
+valid_event_payload = {'auth_method': 'password', 'auth_outcome': 'success', 'command_sequence': [], 'delivery_mode': 'batch', ...}
+
+    @pytest.mark.asyncio
+    async def test_inference_consecutive_requests_update_profile(async_client, valid_event_payload):
+        """
+        A test runs two consecutive inference requests for the same cold-start entity
+        and confirms the second request's profile reflects the EWMA update from the first.
+        """
+        # 1. First Request
+>       response1 = await async_client.post(
+                          ^^^^^^^^^^^^^^^^^
+            "/api/v1/inference/events",
+            json={"events": [valid_event_payload]},
+        )
+E       AttributeError: 'async_generator' object has no attribute 'post'
+
+tests/api/test_inference_router.py:122: AttributeError
+________________________ test_lifespan_initializes_once ________________________
+
+async_client = <async_generator object async_client at 0x152d80c70>
+
+    @pytest.mark.asyncio
+    async def test_lifespan_initializes_once(async_client):
+        """A test confirms models/stores are loaded once at startup."""
+        # Since lifespan is triggered around the async_client context,
+        # we can verify that app.state has the instantiated objects.
+>       assert hasattr(app.state, "orchestrator")
+E       AssertionError: assert False
+E        +  where False = hasattr(<starlette.datastructures.State object at 0x152bb5810>, 'orchestrator')
+E        +    where <starlette.datastructures.State object at 0x152bb5810> = app.state
+
+tests/api/test_inference_router.py:153: AssertionError
+=============================== warnings summary ===============================
+venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:47
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:47: PendingDeprecationWarning: The set_bad function will be deprecated in a future version. Use cmap.with_extremes(bad=...) or Colormap(bad=...) instead.
+    red_blue.set_bad(gray_rgb.tolist(), 1.0)
+
+venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:48
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:48: PendingDeprecationWarning: The set_over function will be deprecated in a future version. Use cmap.with_extremes(over=...) or Colormap(over=...) instead.
+    red_blue.set_over(gray_rgb.tolist(), 1.0)
+
+venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:49
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:49: PendingDeprecationWarning: The set_under function will be deprecated in a future version. Use cmap.with_extremes(under=...) or Colormap(under=...) instead.
+    red_blue.set_under(gray_rgb.tolist(), 1.0)  # "under" is incorrectly used instead of "bad" in the scatter plot
+
+venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:169: 205 warnings
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:169: DeprecationWarning: 'asyncio.iscoroutinefunction' is deprecated and slated for removal in Python 3.16; use inspect.iscoroutinefunction() instead
+    return asyncio.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj)
+
+venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:433
+venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:433
+venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:433
+venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:433
+venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:433
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:433: DeprecationWarning: 'asyncio.iscoroutinefunction' is deprecated and slated for removal in Python 3.16; use inspect.iscoroutinefunction() instead
+    return asyncio.iscoroutinefunction(func)
+
+tests/api/test_inference_router.py::test_inference_router_success
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:1005: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    return asyncio.get_event_loop_policy()
+
+tests/api/test_inference_router.py::test_inference_router_success
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/_pytest/fixtures.py:1182: PytestRemovedIn9Warning: 'test_inference_router_success' requested an async fixture 'async_client', with no plugin or hook that handled it. This is usually an error, as pytest does not natively support it. This will turn into an error in pytest 9.
+  See: https://docs.pytest.org/en/stable/deprecations.html#sync-test-depending-on-async-fixture
+    warnings.warn(
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:751: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    _restore_event_loop_policy(asyncio.get_event_loop_policy()),
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:977: DeprecationWarning: 'asyncio.set_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    asyncio.set_event_loop_policy(new_loop_policy)
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:978: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:766: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    policy = asyncio.get_event_loop_policy()
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:811: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    policy = asyncio.get_event_loop_policy()
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:835: DeprecationWarning: 'asyncio.set_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    asyncio.set_event_loop_policy(previous_policy)
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:847: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    policy = asyncio.get_event_loop_policy()
+
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/_pytest/fixtures.py:1182: PytestRemovedIn9Warning: 'test_inference_router_rejects_label' requested an async fixture 'async_client', with no plugin or hook that handled it. This is usually an error, as pytest does not natively support it. This will turn into an error in pytest 9.
+  See: https://docs.pytest.org/en/stable/deprecations.html#sync-test-depending-on-async-fixture
+    warnings.warn(
+
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/_pytest/fixtures.py:1182: PytestRemovedIn9Warning: 'test_inference_router_malformed_payload' requested an async fixture 'async_client', with no plugin or hook that handled it. This is usually an error, as pytest does not natively support it. This will turn into an error in pytest 9.
+  See: https://docs.pytest.org/en/stable/deprecations.html#sync-test-depending-on-async-fixture
+    warnings.warn(
+
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/_pytest/fixtures.py:1182: PytestRemovedIn9Warning: 'test_inference_consecutive_requests_update_profile' requested an async fixture 'async_client', with no plugin or hook that handled it. This is usually an error, as pytest does not natively support it. This will turn into an error in pytest 9.
+  See: https://docs.pytest.org/en/stable/deprecations.html#sync-test-depending-on-async-fixture
+    warnings.warn(
+
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/_pytest/fixtures.py:1182: PytestRemovedIn9Warning: 'test_lifespan_initializes_once' requested an async fixture 'async_client', with no plugin or hook that handled it. This is usually an error, as pytest does not natively support it. This will turn into an error in pytest 9.
+  See: https://docs.pytest.org/en/stable/deprecations.html#sync-test-depending-on-async-fixture
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform darwin, python 3.14.5-final-0 ----------
+Name                                                                       Stmts   Miss  Cover   Missing
+--------------------------------------------------------------------------------------------------------
+src/anomaly_detection/__init__.py                                              0      0   100%
+src/anomaly_detection/api/__init__.py                                          0      0   100%
+src/anomaly_detection/api/dependencies.py                                     19     12    37%   11-14, 19-22, 27-30
+src/anomaly_detection/api/main.py                                             79     37    53%   34-41, 50-110, 127-128, 139
+src/anomaly_detection/api/middleware.py                                       28     12    57%   29-48, 54-59, 72-76
+src/anomaly_detection/api/routers/__init__.py                                  2      0   100%
+src/anomaly_detection/api/routers/alerts.py                                    2      0   100%
+src/anomaly_detection/api/routers/entities.py                                  2      0   100%
+src/anomaly_detection/api/routers/inference.py                                34     14    59%   24-26, 55-76
+src/anomaly_detection/classifier/__init__.py                                   0      0   100%
+src/anomaly_detection/cold_start/__init__.py                                   0      0   100%
+src/anomaly_detection/common/__init__.py                                       0      0   100%
+src/anomaly_detection/common/config.py                                        22      3    86%   65-67
+src/anomaly_detection/common/exceptions.py                                     8      8     0%   9-23
+src/anomaly_detection/common/logging.py                                       16      0   100%
+src/anomaly_detection/common/models/__init__.py                                8      0   100%
+src/anomaly_detection/common/models/access_log.py                             46      0   100%
+src/anomaly_detection/common/models/alerts.py                                 49      0   100%
+src/anomaly_detection/common/models/entities.py                               36      0   100%
+src/anomaly_detection/common/models/enums.py                                  25      0   100%
+src/anomaly_detection/common/models/features.py                               18      0   100%
+src/anomaly_detection/common/models/ml_io.py                                  51      0   100%
+src/anomaly_detection/data_generator/__init__.py                               7      7     0%   13-24
+src/anomaly_detection/data_generator/attack_injector.py                      115    115     0%   11-257
+src/anomaly_detection/data_generator/attackers/__init__.py                     0      0   100%
+src/anomaly_detection/data_generator/attackers/base.py                        47     47     0%   10-132
+src/anomaly_detection/data_generator/attackers/brute_force.py                 44     44     0%   11-128
+src/anomaly_detection/data_generator/attackers/credential_stuffing.py         63     63     0%   11-171
+src/anomaly_detection/data_generator/attackers/device_spoofing.py             64     64     0%   12-172
+src/anomaly_detection/data_generator/attackers/impossible_travel.py           62     62     0%   11-139
+src/anomaly_detection/data_generator/attackers/insider_drift.py               90     90     0%   19-239
+src/anomaly_detection/data_generator/attackers/lateral_movement.py            78     78     0%   13-190
+src/anomaly_detection/data_generator/attackers/low_and_slow.py                57     57     0%   12-145
+src/anomaly_detection/data_generator/config.py                                45     45     0%   8-240
+src/anomaly_detection/data_generator/entity_profiles.py                       71     71     0%   8-241
+src/anomaly_detection/data_generator/generator.py                            334    334     0%   11-1014
+src/anomaly_detection/data_generator/injection_config.py                      83     83     0%   8-165
+src/anomaly_detection/drift/__init__.py                                        0      0   100%
+src/anomaly_detection/evaluation/__init__.py                                   0      0   100%
+src/anomaly_detection/explainability/__init__.py                               0      0   100%
+src/anomaly_detection/feature_engineering/__init__.py                          7      0   100%
+src/anomaly_detection/feature_engineering/config.py                           54      0   100%
+src/anomaly_detection/feature_engineering/encoders.py                         95     70    26%   59-60, 80-81, 108, 132-133, 156, 185-187, 225-230, 253, 276, 304, 343-355, 377-380, 416-424, 454-460, 487-493, 520-525, 555, 596-599, 632-635, 669-672
+src/anomaly_detection/feature_engineering/feature_extractor.py                71     58    18%   95, 122-292, 321-340
+src/anomaly_detection/feature_engineering/feature_pipeline.py                 91     70    23%   105-110, 145-209, 236-246, 268-280, 312, 343-376
+src/anomaly_detection/feature_engineering/geo_velocity.py                     27     19    30%   68-86, 127-147
+src/anomaly_detection/feature_engineering/profile_store_interface.py          19      1    95%   158
+src/anomaly_detection/feature_engineering/sequence_builder.py                 56     40    29%   58-63, 67, 97-109, 141-148, 171-176, 205-217, 236-243, 262, 280
+src/anomaly_detection/feature_engineering/session_builder.py                 108     79    27%   52-59, 71-73, 77, 92-95, 107-109, 113, 125-128, 147-148, 179-192, 203-205, 217-219, 246-297, 322-325, 334, 352, 392-402
+src/anomaly_detection/models/__init__.py                                       0      0   100%
+src/anomaly_detection/models/behavioral_profiling/__init__.py                  0      0   100%
+src/anomaly_detection/models/fusion/__init__.py                                2      0   100%
+src/anomaly_detection/models/fusion/score_fusion.py                           31     12    61%   28-30, 38, 50-55, 76-79, 86
+src/anomaly_detection/models/sequence_detection/__init__.py                    7      0   100%
+src/anomaly_detection/models/sequence_detection/attribution_interface.py      47     30    36%   20-21, 42, 52-59, 74-76, 84-123
+src/anomaly_detection/models/sequence_detection/base.py                       51     35    31%   21-22, 39-53, 61-70, 79-92, 102-105, 117-125, 130-137, 142-148
+src/anomaly_detection/models/sequence_detection/config.py                     42      5    88%   112-113, 117-118, 123
+src/anomaly_detection/models/sequence_detection/dataset.py                    50     39    22%   29-36, 39, 42-44, 59-79, 100-118
+src/anomaly_detection/models/sequence_detection/inference.py                  58     44    24%   29-38, 45-55, 64-126
+src/anomaly_detection/models/sequence_detection/trainer.py                   107     87    19%   28-36, 54-70, 74-93, 98-112, 120-167, 177-216
+src/anomaly_detection/stores/__init__.py                                       0      0   100%
+src/anomaly_detection/stores/alert_store.py                                   41     22    46%   26, 33, 40, 59, 67, 74, 81-102
+src/anomaly_detection/stores/backends/__init__.py                              0      0   100%
+src/anomaly_detection/stores/backends/in_memory.py                            46     34    26%   20-22, 25, 28-30, 35, 48-88, 91-96, 99-100
+src/anomaly_detection/stores/backends/sqlite.py                               80     63    21%   23-25, 28-30, 33-75, 78-79, 110-111, 128-134, 171-227, 230-236, 239-247
+src/anomaly_detection/streaming/__init__.py                                    0      0   100%
+src/classification/__init__.py                                                 5      0   100%
+src/classification/classifier.py                                              80     64    20%   27-28, 34-35, 41-44, 55-115, 138-176, 187-196, 203-208
+src/classification/config.py                                                   9      0   100%
+src/classification/dataset.py                                                 42     28    33%   33-48, 54, 60-65, 82-106, 112
+src/classification/trainer.py                                                 29     20    31%   19, 32-85
+src/cold_start/__init__.py                                                     0      0   100%
+src/cold_start/config.py                                                       6      6     0%   5-40
+src/cold_start/event_counter.py                                               44     44     0%   5-84
+src/cold_start/handler.py                                                     52     52     0%   5-150
+src/drift/__init__.py                                                          3      0   100%
+src/drift/config.py                                                            6      0   100%
+src/drift/ewma_updater.py                                                     38     20    47%   38-39, 50-51, 73-93, 101-102, 112-113, 120-121
+src/explainability/__init__.py                                                 3      0   100%
+src/explainability/attribution_engine.py                                      60     46    23%   25, 32-64, 70-100, 106-136
+src/explainability/config.py                                                   9      0   100%
+src/explainability/consistency_validator.py                                   27     17    37%   33, 40-68
+src/explainability/engine.py                                                  49     37    24%   28-33, 48-115
+src/explainability/feature_phrase_map.py                                       1      0   100%
+src/explainability/narrative_translator.py                                   102     89    13%   17, 23-32, 38-59, 65-85, 92-103, 127-195
+src/explainability/templates/__init__.py                                      10      0   100%
+src/explainability/templates/brute_force.py                                    1      0   100%
+src/explainability/templates/cold_start_modifier.py                            1      0   100%
+src/explainability/templates/credential_stuffing.py                            1      0   100%
+src/explainability/templates/device_spoofing.py                                1      0   100%
+src/explainability/templates/impossible_travel.py                              1      0   100%
+src/explainability/templates/insider_drift.py                                  2      0   100%
+src/explainability/templates/lateral_movement.py                               1      0   100%
+src/explainability/templates/low_and_slow.py                                   2      0   100%
+src/explainability/templates/unclassified.py                                   1      0   100%
+src/orchestrator/__init__.py                                                   4      0   100%
+src/orchestrator/alert_builder.py                                             31     13    58%   43-44, 74-77, 82-88
+src/orchestrator/config.py                                                     6      0   100%
+src/orchestrator/pipeline.py                                                  67     32    52%   145-157, 161-197, 201
+src/profiling/__init__.py                                                      5      0   100%
+src/profiling/config.py                                                       11      0   100%
+src/profiling/population_prior.py                                             38     24    37%   23-25, 41-56, 71, 77-85, 91-94
+src/profiling/profile_model.py                                                82     58    29%   54-56, 66-127, 140-192
+src/profiling/profile_store.py                                                28     15    46%   24-27, 34, 41, 47, 53-65, 71-75
+--------------------------------------------------------------------------------------------------------
+TOTAL                                                                       3553   2519    29%
+
+=========================== short test summary info ============================
+FAILED tests/api/test_inference_router.py::test_inference_router_success - At...
+FAILED tests/api/test_inference_router.py::test_inference_router_rejects_label
+FAILED tests/api/test_inference_router.py::test_inference_router_malformed_payload
+FAILED tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+FAILED tests/api/test_inference_router.py::test_lifespan_initializes_once - A...
+======================= 5 failed, 254 warnings in 6.87s ========================

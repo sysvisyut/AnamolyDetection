@@ -1,0 +1,899 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.5, pytest-8.4.2, pluggy-1.6.0
+rootdir: /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection
+configfile: pyproject.toml
+plugins: asyncio-0.23.8, cov-5.0.0, anyio-4.14.2, Faker-40.36.0
+asyncio: mode=Mode.STRICT
+collected 5 items
+
+tests/api/test_inference_router.py FF.F.                                 [100%]
+
+=================================== FAILURES ===================================
+________________________ test_inference_router_success _________________________
+
+async_client = <httpx.AsyncClient object at 0x134f9bb60>
+valid_event_payload = {'auth_method': 'password', 'auth_outcome': 'success', 'command_sequence': [], 'delivery_mode': 'batch', ...}
+
+    @pytest.mark.asyncio
+    async def test_inference_router_success(async_client, valid_event_payload):
+        """Test valid single-event inference request returns 200 OK and AlertPayload."""
+        # We test with the actual lifecycle (app state loaded).
+        # Since we are using the real M11 orchestrator, it will generate a score.
+        # We do not mock it, per requirement 4: "proving the M11 orchestrator wiring... is live".
+        response = await async_client.post(
+            "/api/v1/inference/events",
+            json={"events": [valid_event_payload]},
+        )
+    
+>       assert response.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests/api/test_inference_router.py:72: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+2026-07-26T15:44:35Z - sdm_inference - ERROR - SDM artifact not found at data/models/sdm_user.pt. Must train first.
+------------------------------ Captured log setup ------------------------------
+WARNING  anomaly_detection.api.main:main.py:81 SDM model not found at data/models/sdm_user.pt. Falling back to dummy.
+------------------------------ Captured log call -------------------------------
+ERROR    anomaly_detection.api.routers.inference:inference.py:70 Pipeline error processing event test_evt_001: Model is not loaded. Call load_model() or train first.
+Traceback (most recent call last):
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/src/anomaly_detection/api/routers/inference.py", line 59, in process_inference_events
+    alert = orchestrator.process(event)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/src/orchestrator/pipeline.py", line 178, in process
+    classification = self.classifier.classify_signal(signal, features.feature_vector)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/src/classification/classifier.py", line 139, in classify_signal
+    raise RuntimeError("Model is not loaded. Call load_model() or train first.")
+RuntimeError: Model is not loaded. Call load_model() or train first.
+_____________________ test_inference_router_rejects_label ______________________
+
+scope = {'app': <fastapi.applications.FastAPI object at 0x134ca5d30>, 'asgi': {'version': '3.0'}, 'client': ('127.0.0.1', 123), 'endpoint': <function process_inference_events at 0x10d997530>, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x134fa8d50>
+send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x134fab3d0>
+
+    async def wrapped_app(scope: Scope, receive: Receive, send: Send) -> None:
+        response_started = False
+    
+        async def sender(message: Message) -> None:
+            nonlocal response_started
+    
+            if message["type"] == "http.response.start":
+                response_started = True
+            await send(message)
+    
+        try:
+>           await app(scope, receive, sender)
+
+venv/lib/python3.14/site-packages/starlette/_exception_handler.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+venv/lib/python3.14/site-packages/fastapi/routing.py:142: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = <starlette.requests.Request object at 0x134cef950>
+
+    async def app(request: Request) -> Response:
+        response: Response | None = None
+        file_stack = request.scope.get("fastapi_middleware_astack")
+        assert isinstance(file_stack, AsyncExitStack), (
+            "fastapi_middleware_astack not found in request scope"
+        )
+    
+        # Extract endpoint context for error messages
+        endpoint_ctx = (
+            _extract_endpoint_context(dependant.call)
+            if dependant.call
+            else EndpointContext()
+        )
+    
+        if dependant.path:
+            # For mounted sub-apps, include the mount path prefix
+            mount_path = request.scope.get("root_path", "").rstrip("/")
+            endpoint_ctx["path"] = f"{request.method} {mount_path}{dependant.path}"
+    
+        # Read body and auto-close files
+        try:
+            body: Any = None
+            if body_field:
+                if is_body_form:
+                    body = await request.form()
+                    file_stack.push_async_callback(body.close)
+                else:
+                    body_bytes = await request.body()
+                    if body_bytes:
+                        json_body: Any = Undefined
+                        content_type_value = request.headers.get("content-type")
+                        if not content_type_value:
+                            if not actual_strict_content_type:
+                                json_body = await request.json()
+                        else:
+                            message = email.message.Message()
+                            message["content-type"] = content_type_value
+                            if message.get_content_maintype() == "application":
+                                subtype = message.get_content_subtype()
+                                if subtype == "json" or subtype.endswith("+json"):
+                                    json_body = await request.json()
+                        if json_body != Undefined:
+                            body = json_body
+                        else:
+                            body = body_bytes
+        except json.JSONDecodeError as e:
+            validation_error = RequestValidationError(
+                [
+                    {
+                        "type": "json_invalid",
+                        "loc": ("body", e.pos),
+                        "msg": "JSON decode error",
+                        "input": {},
+                        "ctx": {"error": e.msg},
+                    }
+                ],
+                body=e.doc,
+                endpoint_ctx=endpoint_ctx,
+            )
+            raise validation_error from e
+        except HTTPException:
+            # If a middleware raises an HTTPException, it should be raised again
+            raise
+        except Exception as e:
+            http_error = HTTPException(
+                status_code=400, detail="There was an error parsing the body"
+            )
+            raise http_error from e
+    
+        # Solve dependencies and run path operation function, auto-closing dependencies
+        errors: list[Any] = []
+        async_exit_stack = request.scope.get("fastapi_inner_astack")
+        assert isinstance(async_exit_stack, AsyncExitStack), (
+            "fastapi_inner_astack not found in request scope"
+        )
+        solved_result = await solve_dependencies(
+            request=request,
+            dependant=dependant,
+            body=cast(dict[str, Any] | FormData | bytes | None, body),
+            dependency_overrides_provider=dependency_overrides_provider,
+            async_exit_stack=async_exit_stack,
+            embed_body_fields=embed_body_fields,
+        )
+        errors = solved_result.errors
+        assert dependant.call  # For types
+        if not errors:
+            # Shared serializer for stream items (JSONL and SSE).
+            # Validates against stream_item_field when set, then
+            # serializes to JSON bytes.
+            def _serialize_data(data: Any) -> bytes:
+                if stream_item_field:
+                    value, errors_ = stream_item_field.validate(
+                        data, {}, loc=("response",)
+                    )
+                    if errors_:
+                        ctx = endpoint_ctx or EndpointContext()
+                        raise ResponseValidationError(
+                            errors=errors_,
+                            body=data,
+                            endpoint_ctx=ctx,
+                        )
+                    return stream_item_field.serialize_json(
+                        value,
+                        include=response_model_include,
+                        exclude=response_model_exclude,
+                        by_alias=response_model_by_alias,
+                        exclude_unset=response_model_exclude_unset,
+                        exclude_defaults=response_model_exclude_defaults,
+                        exclude_none=response_model_exclude_none,
+                    )
+                else:
+                    data = jsonable_encoder(data)
+                    return json.dumps(data).encode("utf-8")
+    
+            if is_sse_stream:
+                # Generator endpoint: stream as Server-Sent Events
+                gen = dependant.call(**solved_result.values)
+    
+                def _serialize_sse_item(item: Any) -> bytes:
+                    if isinstance(item, ServerSentEvent):
+                        # User controls the event structure.
+                        # Serialize the data payload if present.
+                        # For ServerSentEvent items we skip stream_item_field
+                        # validation (the user may mix types intentionally).
+                        if item.raw_data is not None:
+                            data_str: str | None = item.raw_data
+                        elif item.data is not None:
+                            if hasattr(item.data, "model_dump_json"):
+                                data_str = item.data.model_dump_json()
+                            else:
+                                data_str = json.dumps(jsonable_encoder(item.data))
+                        else:
+                            data_str = None
+                        return format_sse_event(
+                            data_str=data_str,
+                            event=item.event,
+                            id=item.id,
+                            retry=item.retry,
+                            comment=item.comment,
+                        )
+                    else:
+                        # Plain object: validate + serialize via
+                        # stream_item_field (if set) and wrap in data field
+                        return format_sse_event(
+                            data_str=_serialize_data(item).decode("utf-8")
+                        )
+    
+                if _is_async_gen_callable(dependant.call):
+                    sse_aiter: AsyncIterator[Any] = gen.__aiter__()
+                else:
+                    sse_aiter = iterate_in_threadpool(gen)
+    
+                @asynccontextmanager
+                async def _sse_producer_cm() -> AsyncIterator[
+                    ObjectReceiveStream[bytes]
+                ]:
+                    # Use a memory stream to decouple generator iteration
+                    # from the keepalive timer. A producer task pulls items
+                    # from the generator independently, so
+                    # `anyio.fail_after` never wraps the generator's
+                    # `__anext__` directly - avoiding CancelledError that
+                    # would finalize the generator and also working for sync
+                    # generators running in a thread pool.
+                    #
+                    # This context manager is entered on the request-scoped
+                    # AsyncExitStack so its __aexit__ (which cancels the
+                    # task group) is called by the exit stack after the
+                    # streaming response completes — not by async generator
+                    # finalization via GeneratorExit.
+                    # Ref: https://peps.python.org/pep-0789/
+                    send_stream, receive_stream = anyio.create_memory_object_stream[
+                        bytes
+                    ](max_buffer_size=1)
+    
+                    async def _producer() -> None:
+                        async with send_stream:
+                            async for raw_item in sse_aiter:
+                                await send_stream.send(_serialize_sse_item(raw_item))
+    
+                    send_keepalive, receive_keepalive = (
+                        anyio.create_memory_object_stream[bytes](max_buffer_size=1)
+                    )
+    
+                    async def _keepalive_inserter() -> None:
+                        """Read from the producer and forward to the output,
+                        inserting keepalive comments on timeout."""
+                        async with send_keepalive, receive_stream:
+                            try:
+                                while True:
+                                    try:
+                                        with anyio.fail_after(_PING_INTERVAL):
+                                            data = await receive_stream.receive()
+                                        await send_keepalive.send(data)
+                                    except TimeoutError:
+                                        await send_keepalive.send(KEEPALIVE_COMMENT)
+                            except anyio.EndOfStream:
+                                pass
+    
+                    async with anyio.create_task_group() as tg:
+                        tg.start_soon(_producer)
+                        tg.start_soon(_keepalive_inserter)
+                        yield receive_keepalive
+                        tg.cancel_scope.cancel()
+    
+                # Enter the SSE context manager on the request-scoped
+                # exit stack. The stack outlives the streaming response,
+                # so __aexit__ runs via proper structured teardown, not
+                # via GeneratorExit thrown into an async generator.
+                sse_receive_stream = await async_exit_stack.enter_async_context(
+                    _sse_producer_cm()
+                )
+                # Ensure the receive stream is closed when the exit stack
+                # unwinds, preventing ResourceWarning from __del__.
+                async_exit_stack.push_async_callback(sse_receive_stream.aclose)
+    
+                async def _sse_with_checkpoints(
+                    stream: ObjectReceiveStream[bytes],
+                ) -> AsyncIterator[bytes]:
+                    async for data in stream:
+                        yield data
+                        # Guarantee a checkpoint so cancellation can be
+                        # delivered even when the producer is faster than
+                        # the consumer and receive() never suspends.
+                        await anyio.sleep(0)
+    
+                sse_stream_content: AsyncIterator[bytes] | Iterator[bytes] = (
+                    _sse_with_checkpoints(sse_receive_stream)
+                )
+    
+                response = StreamingResponse(
+                    sse_stream_content,
+                    media_type="text/event-stream",
+                    background=solved_result.background_tasks,
+                )
+                response.headers["Cache-Control"] = "no-cache"
+                # For Nginx proxies to not buffer server sent events
+                response.headers["X-Accel-Buffering"] = "no"
+                response.headers.raw.extend(solved_result.response.headers.raw)
+            elif is_json_stream:
+                # Generator endpoint: stream as JSONL
+                gen = dependant.call(**solved_result.values)
+    
+                def _serialize_item(item: Any) -> bytes:
+                    return _serialize_data(item) + b"\n"
+    
+                if _is_async_gen_callable(dependant.call):
+    
+                    async def _async_stream_jsonl() -> AsyncIterator[bytes]:
+                        async for item in gen:
+                            yield _serialize_item(item)
+                            # To allow for cancellation to trigger
+                            # Ref: https://github.com/fastapi/fastapi/issues/14680
+                            await anyio.sleep(0)
+    
+                    jsonl_stream_content: AsyncIterator[bytes] | Iterator[bytes] = (
+                        _async_stream_jsonl()
+                    )
+                else:
+    
+                    def _sync_stream_jsonl() -> Iterator[bytes]:
+                        for item in gen:  # ty: ignore[not-iterable]
+                            yield _serialize_item(item)
+    
+                    jsonl_stream_content = _sync_stream_jsonl()
+    
+                response = StreamingResponse(
+                    jsonl_stream_content,
+                    media_type="application/jsonl",
+                    background=solved_result.background_tasks,
+                )
+                response.headers.raw.extend(solved_result.response.headers.raw)
+            elif _is_async_gen_callable(dependant.call) or _is_gen_callable(
+                dependant.call
+            ):
+                # Raw streaming with explicit response_class (e.g. StreamingResponse)
+                gen = dependant.call(**solved_result.values)
+                if _is_async_gen_callable(dependant.call):
+    
+                    async def _async_stream_raw(
+                        async_gen: AsyncIterator[Any],
+                    ) -> AsyncIterator[Any]:
+                        async for chunk in async_gen:
+                            yield chunk
+                            # To allow for cancellation to trigger
+                            # Ref: https://github.com/fastapi/fastapi/issues/14680
+                            await anyio.sleep(0)
+    
+                    gen = _async_stream_raw(gen)
+                response_args = _build_response_args(
+                    status_code=status_code, solved_result=solved_result
+                )
+                response = actual_response_class(content=gen, **response_args)
+                response.headers.raw.extend(solved_result.response.headers.raw)
+            else:
+                raw_response = await run_endpoint_function(
+                    dependant=dependant,
+                    values=solved_result.values,
+                    is_coroutine=is_coroutine,
+                )
+                if isinstance(raw_response, Response):
+                    if raw_response.background is None:
+                        raw_response.background = solved_result.background_tasks
+                    response = raw_response
+                else:
+                    response_args = _build_response_args(
+                        status_code=status_code, solved_result=solved_result
+                    )
+                    # Use the fast path (dump_json) when no custom response
+                    # class was set and a response field with a TypeAdapter
+                    # exists. Serializes directly to JSON bytes via Pydantic's
+                    # Rust core, skipping the intermediate Python dict +
+                    # json.dumps() step.
+                    use_dump_json = response_field is not None and isinstance(
+                        response_class, DefaultPlaceholder
+                    )
+                    content = await serialize_response(
+                        field=response_field,
+                        response_content=raw_response,
+                        include=response_model_include,
+                        exclude=response_model_exclude,
+                        by_alias=response_model_by_alias,
+                        exclude_unset=response_model_exclude_unset,
+                        exclude_defaults=response_model_exclude_defaults,
+                        exclude_none=response_model_exclude_none,
+                        is_coroutine=is_coroutine,
+                        endpoint_ctx=endpoint_ctx,
+                        dump_json=use_dump_json,
+                    )
+                    if use_dump_json:
+                        response = Response(
+                            content=content,
+                            media_type="application/json",
+                            **response_args,
+                        )
+                    else:
+                        response = actual_response_class(content, **response_args)
+                    if not is_body_allowed_for_status_code(response.status_code):
+                        response.body = b""
+                    response.headers.raw.extend(solved_result.response.headers.raw)
+        if errors:
+            validation_error = RequestValidationError(
+                errors, body=body, endpoint_ctx=endpoint_ctx
+            )
+>           raise validation_error
+E           fastapi.exceptions.RequestValidationError: 1 validation error:
+E             {'type': 'value_error', 'loc': ('body', 'events', 0), 'msg': "Value error, Input events must not contain a ground-truth 'label' field.", 'input': {'event_id': 'test_evt_001', 'session_id': 'test_ses_001', 'entity_id': 'test_usr_001', 'entity_type': 'user', 'timestamp': '2026-07-26T10:14:35.828233+00:00', 'source_ip': '192.168.1.100', 'geo_location': {'city': 'Test City', 'country': 'US', 'latitude': 40.7128, 'longitude': -74.006}, 'resource_accessed': 'file/test.txt', 'auth_method': 'password', 'auth_outcome': 'success', 'session_duration': 15.0, 'command_sequence': [], 'device_fingerprint': {'device_id': 'test_dev_001', 'os_family': 'Linux', 'os_version': '22.04', 'mac_address': '00:11:22:33:44:55', 'protocol': 'HTTPS', 'user_agent': 'pytest', 'firmware_version': ''}, 'failure_count': 0, 'delivery_mode': 'batch', 'label': 'brute_force'}, 'ctx': {'error': ValueError("Input events must not contain a ground-truth 'label' field.")}}
+E           
+E             File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/src/anomaly_detection/api/routers/inference.py", line 41, in process_inference_events
+E               POST /api/v1/inference/events
+
+venv/lib/python3.14/site-packages/fastapi/routing.py:747: RequestValidationError
+
+The above exception was the direct cause of the following exception:
+
+async_client = <httpx.AsyncClient object at 0x1350560d0>
+valid_event_payload = {'auth_method': 'password', 'auth_outcome': 'success', 'command_sequence': [], 'delivery_mode': 'batch', ...}
+
+    @pytest.mark.asyncio
+    async def test_inference_router_rejects_label(async_client, valid_event_payload):
+        """Test payload containing 'label' is rejected with 422 (Risk 3)."""
+        payload_with_label = valid_event_payload.copy()
+        payload_with_label["label"] = "brute_force"
+    
+>       response = await async_client.post(
+            "/api/v1/inference/events",
+            json={"events": [payload_with_label]},
+        )
+
+tests/api/test_inference_router.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+venv/lib/python3.14/site-packages/httpx/_client.py:1859: in post
+    return await self.request(
+venv/lib/python3.14/site-packages/httpx/_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+venv/lib/python3.14/site-packages/httpx/_client.py:1629: in send
+    response = await self._send_handling_auth(
+venv/lib/python3.14/site-packages/httpx/_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+venv/lib/python3.14/site-packages/httpx/_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+venv/lib/python3.14/site-packages/httpx/_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+venv/lib/python3.14/site-packages/httpx/_transports/asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+venv/lib/python3.14/site-packages/fastapi/applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+venv/lib/python3.14/site-packages/starlette/applications.py:90: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv/lib/python3.14/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+venv/lib/python3.14/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+venv/lib/python3.14/site-packages/starlette/middleware/base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/anomaly_detection/api/middleware.py:33: in log_requests
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+venv/lib/python3.14/site-packages/starlette/middleware/base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+venv/lib/python3.14/site-packages/starlette/middleware/base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+venv/lib/python3.14/site-packages/starlette/middleware/cors.py:88: in __call__
+    await self.app(scope, receive, send)
+venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+venv/lib/python3.14/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+venv/lib/python3.14/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+venv/lib/python3.14/site-packages/starlette/routing.py:660: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv/lib/python3.14/site-packages/fastapi/routing.py:2692: in app
+    await route.handle(scope, receive, send)
+venv/lib/python3.14/site-packages/fastapi/routing.py:1773: in handle
+    await self.original_router.handle(scope, receive, send)
+venv/lib/python3.14/site-packages/fastapi/routing.py:2747: in handle
+    await included_router._handle_selected(scope, receive, send)
+venv/lib/python3.14/site-packages/fastapi/routing.py:1793: in _handle_selected
+    await original_route.handle(scope, receive, send)
+venv/lib/python3.14/site-packages/fastapi/routing.py:1272: in handle
+    await app(scope, receive, send)
+venv/lib/python3.14/site-packages/fastapi/routing.py:156: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+venv/lib/python3.14/site-packages/starlette/_exception_handler.py:59: in wrapped_app
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+src/anomaly_detection/api/middleware.py:76: in validation_exception_handler
+    return JSONResponse(
+venv/lib/python3.14/site-packages/starlette/responses.py:192: in __init__
+    super().__init__(content, status_code, headers, media_type, background)
+venv/lib/python3.14/site-packages/starlette/responses.py:45: in __init__
+    self.body = self.render(content)
+                ^^^^^^^^^^^^^^^^^^^^
+venv/lib/python3.14/site-packages/starlette/responses.py:195: in render
+    return json.dumps(
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/__init__.py:242: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/encoder.py:202: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/encoder.py:263: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x1350c8050>
+o = ValueError("Input events must not contain a ground-truth 'label' field.")
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ValueError is not JSON serializable
+E       when serializing dict item 'error'
+E       when serializing dict item 'ctx'
+E       when serializing list item 0
+E       when serializing dict item 'details'
+
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/encoder.py:182: TypeError
+---------------------------- Captured stdout setup -----------------------------
+2026-07-26T15:44:35Z - sdm_inference - ERROR - SDM artifact not found at data/models/sdm_user.pt. Must train first.
+------------------------------ Captured log setup ------------------------------
+WARNING  anomaly_detection.api.main:main.py:81 SDM model not found at data/models/sdm_user.pt. Falling back to dummy.
+------------------------------ Captured log call -------------------------------
+WARNING  anomaly_detection.api.middleware:middleware.py:72 Request validation error
+ERROR    anomaly_detection.api.middleware:middleware.py:54 Unhandled server error
+Traceback (most recent call last):
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/fastapi/routing.py", line 142, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/fastapi/routing.py", line 747, in app
+    raise validation_error
+fastapi.exceptions.RequestValidationError: 1 validation error:
+  {'type': 'value_error', 'loc': ('body', 'events', 0), 'msg': "Value error, Input events must not contain a ground-truth 'label' field.", 'input': {'event_id': 'test_evt_001', 'session_id': 'test_ses_001', 'entity_id': 'test_usr_001', 'entity_type': 'user', 'timestamp': '2026-07-26T10:14:35.828233+00:00', 'source_ip': '192.168.1.100', 'geo_location': {'city': 'Test City', 'country': 'US', 'latitude': 40.7128, 'longitude': -74.006}, 'resource_accessed': 'file/test.txt', 'auth_method': 'password', 'auth_outcome': 'success', 'session_duration': 15.0, 'command_sequence': [], 'device_fingerprint': {'device_id': 'test_dev_001', 'os_family': 'Linux', 'os_version': '22.04', 'mac_address': '00:11:22:33:44:55', 'protocol': 'HTTPS', 'user_agent': 'pytest', 'firmware_version': ''}, 'failure_count': 0, 'delivery_mode': 'batch', 'label': 'brute_force'}, 'ctx': {'error': ValueError("Input events must not contain a ground-truth 'label' field.")}}
+
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/src/anomaly_detection/api/routers/inference.py", line 41, in process_inference_events
+    POST /api/v1/inference/events
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/src/anomaly_detection/api/middleware.py", line 33, in log_requests
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/fastapi/routing.py", line 2692, in app
+    await route.handle(scope, receive, send)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/fastapi/routing.py", line 1773, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/fastapi/routing.py", line 2747, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/fastapi/routing.py", line 1793, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/fastapi/routing.py", line 1272, in handle
+    await app(scope, receive, send)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/fastapi/routing.py", line 156, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 59, in wrapped_app
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/src/anomaly_detection/api/middleware.py", line 76, in validation_exception_handler
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+    ...<3 lines>...
+        },
+    )
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/responses.py", line 192, in __init__
+    super().__init__(content, status_code, headers, media_type, background)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/responses.py", line 45, in __init__
+    self.body = self.render(content)
+                ~~~~~~~~~~~^^^^^^^^^
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/responses.py", line 195, in render
+    return json.dumps(
+           ~~~~~~~~~~^
+        content,
+        ^^^^^^^^
+    ...<3 lines>...
+        separators=(",", ":"),
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ).encode("utf-8")
+    ^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/__init__.py", line 242, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/encoder.py", line 202, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/encoder.py", line 263, in iterencode
+    return _iterencode(o, 0)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/encoder.py", line 182, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type ValueError is not JSON serializable
+when serializing dict item 'error'
+when serializing dict item 'ctx'
+when serializing list item 0
+when serializing dict item 'details'
+______________ test_inference_consecutive_requests_update_profile ______________
+
+async_client = <httpx.AsyncClient object at 0x1350ca650>
+valid_event_payload = {'auth_method': 'password', 'auth_outcome': 'success', 'command_sequence': [], 'delivery_mode': 'batch', ...}
+
+    @pytest.mark.asyncio
+    async def test_inference_consecutive_requests_update_profile(async_client, valid_event_payload):
+        """
+        A test runs two consecutive inference requests for the same cold-start entity
+        and confirms the second request's profile reflects the EWMA update from the first.
+        """
+        # 1. First Request
+        response1 = await async_client.post(
+            "/api/v1/inference/events",
+            json={"events": [valid_event_payload]},
+        )
+>       assert response1.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests/api/test_inference_router.py:129: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+2026-07-26T15:44:36Z - sdm_inference - ERROR - SDM artifact not found at data/models/sdm_user.pt. Must train first.
+------------------------------ Captured log setup ------------------------------
+WARNING  anomaly_detection.api.main:main.py:81 SDM model not found at data/models/sdm_user.pt. Falling back to dummy.
+------------------------------ Captured log call -------------------------------
+ERROR    anomaly_detection.api.routers.inference:inference.py:70 Pipeline error processing event test_evt_001: Model is not loaded. Call load_model() or train first.
+Traceback (most recent call last):
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/src/anomaly_detection/api/routers/inference.py", line 59, in process_inference_events
+    alert = orchestrator.process(event)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/src/orchestrator/pipeline.py", line 178, in process
+    classification = self.classifier.classify_signal(signal, features.feature_vector)
+  File "/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/src/classification/classifier.py", line 139, in classify_signal
+    raise RuntimeError("Model is not loaded. Call load_model() or train first.")
+RuntimeError: Model is not loaded. Call load_model() or train first.
+=============================== warnings summary ===============================
+venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:47
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:47: PendingDeprecationWarning: The set_bad function will be deprecated in a future version. Use cmap.with_extremes(bad=...) or Colormap(bad=...) instead.
+    red_blue.set_bad(gray_rgb.tolist(), 1.0)
+
+venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:48
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:48: PendingDeprecationWarning: The set_over function will be deprecated in a future version. Use cmap.with_extremes(over=...) or Colormap(over=...) instead.
+    red_blue.set_over(gray_rgb.tolist(), 1.0)
+
+venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:49
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:49: PendingDeprecationWarning: The set_under function will be deprecated in a future version. Use cmap.with_extremes(under=...) or Colormap(under=...) instead.
+    red_blue.set_under(gray_rgb.tolist(), 1.0)  # "under" is incorrectly used instead of "bad" in the scatter plot
+
+venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:169: 201 warnings
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:169: DeprecationWarning: 'asyncio.iscoroutinefunction' is deprecated and slated for removal in Python 3.16; use inspect.iscoroutinefunction() instead
+    return asyncio.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj)
+
+venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:433
+venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:433
+venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:433
+venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:433
+venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:433
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:433: DeprecationWarning: 'asyncio.iscoroutinefunction' is deprecated and slated for removal in Python 3.16; use inspect.iscoroutinefunction() instead
+    return asyncio.iscoroutinefunction(func)
+
+tests/api/test_inference_router.py::test_inference_router_success
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:1005: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    return asyncio.get_event_loop_policy()
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:751: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    _restore_event_loop_policy(asyncio.get_event_loop_policy()),
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:977: DeprecationWarning: 'asyncio.set_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    asyncio.set_event_loop_policy(new_loop_policy)
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:978: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:766: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    policy = asyncio.get_event_loop_policy()
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:811: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    policy = asyncio.get_event_loop_policy()
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:835: DeprecationWarning: 'asyncio.set_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    asyncio.set_event_loop_policy(previous_policy)
+
+tests/api/test_inference_router.py::test_inference_router_success
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+tests/api/test_inference_router.py::test_lifespan_initializes_once
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:847: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    policy = asyncio.get_event_loop_policy()
+
+tests/api/test_inference_router.py::test_inference_router_rejects_label
+tests/api/test_inference_router.py::test_inference_router_malformed_payload
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/starlette/_exception_handler.py:59: StarletteDeprecationWarning: 'HTTP_422_UNPROCESSABLE_ENTITY' is deprecated. Use 'HTTP_422_UNPROCESSABLE_CONTENT' instead.
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform darwin, python 3.14.5-final-0 ----------
+Name                                                                       Stmts   Miss  Cover   Missing
+--------------------------------------------------------------------------------------------------------
+src/anomaly_detection/__init__.py                                              0      0   100%
+src/anomaly_detection/api/__init__.py                                          0      0   100%
+src/anomaly_detection/api/dependencies.py                                     19      9    53%   13, 19-22, 27-30
+src/anomaly_detection/api/main.py                                             92      7    92%   41, 56-58, 156-157, 168
+src/anomaly_detection/api/middleware.py                                       28      0   100%
+src/anomaly_detection/api/routers/__init__.py                                  2      0   100%
+src/anomaly_detection/api/routers/alerts.py                                    2      0   100%
+src/anomaly_detection/api/routers/entities.py                                  2      0   100%
+src/anomaly_detection/api/routers/inference.py                                34      4    88%   60-64, 76
+src/anomaly_detection/classifier/__init__.py                                   0      0   100%
+src/anomaly_detection/cold_start/__init__.py                                   0      0   100%
+src/anomaly_detection/common/__init__.py                                       0      0   100%
+src/anomaly_detection/common/config.py                                        22      3    86%   65-67
+src/anomaly_detection/common/exceptions.py                                     8      8     0%   9-23
+src/anomaly_detection/common/logging.py                                       16      0   100%
+src/anomaly_detection/common/models/__init__.py                                8      0   100%
+src/anomaly_detection/common/models/access_log.py                             46      0   100%
+src/anomaly_detection/common/models/alerts.py                                 49      0   100%
+src/anomaly_detection/common/models/entities.py                               36      0   100%
+src/anomaly_detection/common/models/enums.py                                  25      0   100%
+src/anomaly_detection/common/models/features.py                               18      0   100%
+src/anomaly_detection/common/models/ml_io.py                                  51      0   100%
+src/anomaly_detection/data_generator/__init__.py                               7      7     0%   13-24
+src/anomaly_detection/data_generator/attack_injector.py                      115    115     0%   11-257
+src/anomaly_detection/data_generator/attackers/__init__.py                     0      0   100%
+src/anomaly_detection/data_generator/attackers/base.py                        47     47     0%   10-132
+src/anomaly_detection/data_generator/attackers/brute_force.py                 44     44     0%   11-128
+src/anomaly_detection/data_generator/attackers/credential_stuffing.py         63     63     0%   11-171
+src/anomaly_detection/data_generator/attackers/device_spoofing.py             64     64     0%   12-172
+src/anomaly_detection/data_generator/attackers/impossible_travel.py           62     62     0%   11-139
+src/anomaly_detection/data_generator/attackers/insider_drift.py               90     90     0%   19-239
+src/anomaly_detection/data_generator/attackers/lateral_movement.py            78     78     0%   13-190
+src/anomaly_detection/data_generator/attackers/low_and_slow.py                57     57     0%   12-145
+src/anomaly_detection/data_generator/config.py                                45     45     0%   8-240
+src/anomaly_detection/data_generator/entity_profiles.py                       71     71     0%   8-241
+src/anomaly_detection/data_generator/generator.py                            334    334     0%   11-1014
+src/anomaly_detection/data_generator/injection_config.py                      83     83     0%   8-165
+src/anomaly_detection/drift/__init__.py                                        0      0   100%
+src/anomaly_detection/evaluation/__init__.py                                   0      0   100%
+src/anomaly_detection/explainability/__init__.py                               0      0   100%
+src/anomaly_detection/feature_engineering/__init__.py                          7      0   100%
+src/anomaly_detection/feature_engineering/config.py                           54      0   100%
+src/anomaly_detection/feature_engineering/encoders.py                         95     33    65%   228-230, 345-355, 378-379, 418-424, 456-460, 489-493, 597, 633, 672
+src/anomaly_detection/feature_engineering/feature_extractor.py                71     15    79%   155-156, 180, 193, 199, 203-205, 256-257, 325-331
+src/anomaly_detection/feature_engineering/feature_pipeline.py                 91     53    42%   145-209, 236-246, 268-280, 344, 365
+src/anomaly_detection/feature_engineering/geo_velocity.py                     27     17    37%   68-86, 131-147
+src/anomaly_detection/feature_engineering/profile_store_interface.py          19      1    95%   158
+src/anomaly_detection/feature_engineering/sequence_builder.py                 56     22    61%   67, 141-148, 171-176, 206, 236-243, 262, 280
+src/anomaly_detection/feature_engineering/session_builder.py                 108     11    90%   203-205, 264-266, 322-325, 334, 352
+src/anomaly_detection/models/__init__.py                                       0      0   100%
+src/anomaly_detection/models/behavioral_profiling/__init__.py                  0      0   100%
+src/anomaly_detection/models/fusion/__init__.py                                2      0   100%
+src/anomaly_detection/models/fusion/score_fusion.py                           31      3    90%   29, 77, 79
+src/anomaly_detection/models/sequence_detection/__init__.py                    7      0   100%
+src/anomaly_detection/models/sequence_detection/attribution_interface.py      47     30    36%   20-21, 42, 52-59, 74-76, 84-123
+src/anomaly_detection/models/sequence_detection/base.py                       51     34    33%   21-22, 39-53, 61-70, 79-92, 102-105, 117-125, 130-137, 143-148
+src/anomaly_detection/models/sequence_detection/config.py                     42      5    88%   112-113, 117-118, 123
+src/anomaly_detection/models/sequence_detection/dataset.py                    50     39    22%   29-36, 39, 42-44, 59-79, 100-118
+src/anomaly_detection/models/sequence_detection/inference.py                  58     38    34%   33-35, 45-55, 64-126
+src/anomaly_detection/models/sequence_detection/trainer.py                   107     87    19%   28-36, 54-70, 74-93, 98-112, 120-167, 177-216
+src/anomaly_detection/stores/__init__.py                                       0      0   100%
+src/anomaly_detection/stores/alert_store.py                                   41     22    46%   26, 33, 40, 59, 67, 74, 81-102
+src/anomaly_detection/stores/backends/__init__.py                              0      0   100%
+src/anomaly_detection/stores/backends/in_memory.py                            46     34    26%   20-22, 25, 28-30, 35, 48-88, 91-96, 99-100
+src/anomaly_detection/stores/backends/sqlite.py                               80     50    38%   78-79, 110-111, 128-134, 171-227, 230-236, 239-247
+src/anomaly_detection/streaming/__init__.py                                    0      0   100%
+src/classification/__init__.py                                                 5      0   100%
+src/classification/classifier.py                                              80     60    25%   34-35, 41-44, 55-115, 141-176, 187-196, 203-208
+src/classification/config.py                                                   9      0   100%
+src/classification/dataset.py                                                 42     28    33%   33-48, 54, 60-65, 82-106, 112
+src/classification/trainer.py                                                 29     20    31%   19, 32-85
+src/cold_start/__init__.py                                                     0      0   100%
+src/cold_start/config.py                                                       6      6     0%   5-40
+src/cold_start/event_counter.py                                               44     44     0%   5-84
+src/cold_start/handler.py                                                     52     52     0%   5-150
+src/drift/__init__.py                                                          3      0   100%
+src/drift/config.py                                                            6      0   100%
+src/drift/ewma_updater.py                                                     38     18    53%   50-51, 73-93, 101-102, 112-113, 120-121
+src/explainability/__init__.py                                                 3      0   100%
+src/explainability/attribution_engine.py                                      60     45    25%   32-64, 70-100, 106-136
+src/explainability/config.py                                                   9      0   100%
+src/explainability/consistency_validator.py                                   27     16    41%   40-68
+src/explainability/engine.py                                                  49     31    37%   48-115
+src/explainability/feature_phrase_map.py                                       1      0   100%
+src/explainability/narrative_translator.py                                   102     88    14%   23-32, 38-59, 65-85, 92-103, 127-195
+src/explainability/templates/__init__.py                                      10      0   100%
+src/explainability/templates/brute_force.py                                    1      0   100%
+src/explainability/templates/cold_start_modifier.py                            1      0   100%
+src/explainability/templates/credential_stuffing.py                            1      0   100%
+src/explainability/templates/device_spoofing.py                                1      0   100%
+src/explainability/templates/impossible_travel.py                              1      0   100%
+src/explainability/templates/insider_drift.py                                  2      0   100%
+src/explainability/templates/lateral_movement.py                               1      0   100%
+src/explainability/templates/low_and_slow.py                                   2      0   100%
+src/explainability/templates/unclassified.py                                   1      0   100%
+src/orchestrator/__init__.py                                                   4      0   100%
+src/orchestrator/alert_builder.py                                             31     13    58%   43-44, 74-77, 82-88
+src/orchestrator/config.py                                                     6      0   100%
+src/orchestrator/pipeline.py                                                  67     11    84%   171, 179-197, 201
+src/profiling/__init__.py                                                      5      0   100%
+src/profiling/config.py                                                       11      0   100%
+src/profiling/population_prior.py                                             38     21    45%   41-56, 77-85, 91-94
+src/profiling/profile_model.py                                                82     30    63%   66-127, 147-148, 161-164
+src/profiling/profile_store.py                                                28     11    61%   41, 47, 53-65, 71-75
+--------------------------------------------------------------------------------------------------------
+TOTAL                                                                       3566   2179    39%
+
+=========================== short test summary info ============================
+FAILED tests/api/test_inference_router.py::test_inference_router_success - as...
+FAILED tests/api/test_inference_router.py::test_inference_router_rejects_label
+FAILED tests/api/test_inference_router.py::test_inference_consecutive_requests_update_profile
+================== 3 failed, 2 passed, 247 warnings in 5.70s ===================

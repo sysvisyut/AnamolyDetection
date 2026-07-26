@@ -1,0 +1,150 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.5, pytest-8.4.2, pluggy-1.6.0
+rootdir: /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection
+configfile: pyproject.toml
+plugins: asyncio-0.23.8, cov-5.0.0, anyio-4.14.2, Faker-40.36.0
+asyncio: mode=Mode.STRICT
+collected 0 items / 1 error
+
+==================================== ERRORS ====================================
+_____________ ERROR collecting tests/api/test_inference_router.py ______________
+ImportError while importing test module '/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/tests/api/test_inference_router.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/api/test_inference_router.py:7: in <module>
+    from anomaly_detection.api.main import create_app
+src/anomaly_detection/api/main.py:29: in <module>
+    from anomaly_detection.common.config import get_config
+E   ImportError: cannot import name 'get_config' from 'anomaly_detection.common.config' (/Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/src/anomaly_detection/common/config.py)
+=============================== warnings summary ===============================
+venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:47
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:47: PendingDeprecationWarning: The set_bad function will be deprecated in a future version. Use cmap.with_extremes(bad=...) or Colormap(bad=...) instead.
+    red_blue.set_bad(gray_rgb.tolist(), 1.0)
+
+venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:48
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:48: PendingDeprecationWarning: The set_over function will be deprecated in a future version. Use cmap.with_extremes(over=...) or Colormap(over=...) instead.
+    red_blue.set_over(gray_rgb.tolist(), 1.0)
+
+venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:49
+  /Users/sharvajvidyutgmail.com/Desktop/files/curriculum/projects/anomaly_detection/venv/lib/python3.14/site-packages/shap/plots/colors/_colors.py:49: PendingDeprecationWarning: The set_under function will be deprecated in a future version. Use cmap.with_extremes(under=...) or Colormap(under=...) instead.
+    red_blue.set_under(gray_rgb.tolist(), 1.0)  # "under" is incorrectly used instead of "bad" in the scatter plot
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform darwin, python 3.14.5-final-0 ----------
+Name                                                                       Stmts   Miss  Cover   Missing
+--------------------------------------------------------------------------------------------------------
+src/anomaly_detection/__init__.py                                              0      0   100%
+src/anomaly_detection/api/__init__.py                                          0      0   100%
+src/anomaly_detection/api/dependencies.py                                     19     12    37%   11-14, 19-22, 27-30
+src/anomaly_detection/api/main.py                                             80     55    31%   31-144
+src/anomaly_detection/api/middleware.py                                       28     19    32%   18-76
+src/anomaly_detection/api/routers/__init__.py                                  2      0   100%
+src/anomaly_detection/api/routers/alerts.py                                    2      0   100%
+src/anomaly_detection/api/routers/entities.py                                  2      0   100%
+src/anomaly_detection/api/routers/inference.py                                34     14    59%   24-26, 55-76
+src/anomaly_detection/classifier/__init__.py                                   0      0   100%
+src/anomaly_detection/cold_start/__init__.py                                   0      0   100%
+src/anomaly_detection/common/__init__.py                                       0      0   100%
+src/anomaly_detection/common/config.py                                        22      3    86%   65-67
+src/anomaly_detection/common/exceptions.py                                     8      8     0%   9-23
+src/anomaly_detection/common/logging.py                                       16      0   100%
+src/anomaly_detection/common/models/__init__.py                                8      0   100%
+src/anomaly_detection/common/models/access_log.py                             46      0   100%
+src/anomaly_detection/common/models/alerts.py                                 49      0   100%
+src/anomaly_detection/common/models/entities.py                               36      0   100%
+src/anomaly_detection/common/models/enums.py                                  25      0   100%
+src/anomaly_detection/common/models/features.py                               18      0   100%
+src/anomaly_detection/common/models/ml_io.py                                  51      0   100%
+src/anomaly_detection/data_generator/__init__.py                               7      7     0%   13-24
+src/anomaly_detection/data_generator/attack_injector.py                      115    115     0%   11-257
+src/anomaly_detection/data_generator/attackers/__init__.py                     0      0   100%
+src/anomaly_detection/data_generator/attackers/base.py                        47     47     0%   10-132
+src/anomaly_detection/data_generator/attackers/brute_force.py                 44     44     0%   11-128
+src/anomaly_detection/data_generator/attackers/credential_stuffing.py         63     63     0%   11-171
+src/anomaly_detection/data_generator/attackers/device_spoofing.py             64     64     0%   12-172
+src/anomaly_detection/data_generator/attackers/impossible_travel.py           62     62     0%   11-139
+src/anomaly_detection/data_generator/attackers/insider_drift.py               90     90     0%   19-239
+src/anomaly_detection/data_generator/attackers/lateral_movement.py            78     78     0%   13-190
+src/anomaly_detection/data_generator/attackers/low_and_slow.py                57     57     0%   12-145
+src/anomaly_detection/data_generator/config.py                                45     45     0%   8-240
+src/anomaly_detection/data_generator/entity_profiles.py                       71     71     0%   8-241
+src/anomaly_detection/data_generator/generator.py                            334    334     0%   11-1014
+src/anomaly_detection/data_generator/injection_config.py                      83     83     0%   8-165
+src/anomaly_detection/drift/__init__.py                                        0      0   100%
+src/anomaly_detection/evaluation/__init__.py                                   0      0   100%
+src/anomaly_detection/explainability/__init__.py                               0      0   100%
+src/anomaly_detection/feature_engineering/__init__.py                          7      0   100%
+src/anomaly_detection/feature_engineering/config.py                           54      0   100%
+src/anomaly_detection/feature_engineering/encoders.py                         95     70    26%   59-60, 80-81, 108, 132-133, 156, 185-187, 225-230, 253, 276, 304, 343-355, 377-380, 416-424, 454-460, 487-493, 520-525, 555, 596-599, 632-635, 669-672
+src/anomaly_detection/feature_engineering/feature_extractor.py                71     58    18%   95, 122-292, 321-340
+src/anomaly_detection/feature_engineering/feature_pipeline.py                 91     70    23%   105-110, 145-209, 236-246, 268-280, 312, 343-376
+src/anomaly_detection/feature_engineering/geo_velocity.py                     27     19    30%   68-86, 127-147
+src/anomaly_detection/feature_engineering/profile_store_interface.py          19      1    95%   158
+src/anomaly_detection/feature_engineering/sequence_builder.py                 56     40    29%   58-63, 67, 97-109, 141-148, 171-176, 205-217, 236-243, 262, 280
+src/anomaly_detection/feature_engineering/session_builder.py                 108     79    27%   52-59, 71-73, 77, 92-95, 107-109, 113, 125-128, 147-148, 179-192, 203-205, 217-219, 246-297, 322-325, 334, 352, 392-402
+src/anomaly_detection/models/__init__.py                                       0      0   100%
+src/anomaly_detection/models/behavioral_profiling/__init__.py                  0      0   100%
+src/anomaly_detection/models/fusion/__init__.py                                2      0   100%
+src/anomaly_detection/models/fusion/score_fusion.py                           31     12    61%   28-30, 38, 50-55, 76-79, 86
+src/anomaly_detection/models/sequence_detection/__init__.py                    7      0   100%
+src/anomaly_detection/models/sequence_detection/attribution_interface.py      47     30    36%   20-21, 42, 52-59, 74-76, 84-123
+src/anomaly_detection/models/sequence_detection/base.py                       51     35    31%   21-22, 39-53, 61-70, 79-92, 102-105, 117-125, 130-137, 142-148
+src/anomaly_detection/models/sequence_detection/config.py                     42      5    88%   112-113, 117-118, 123
+src/anomaly_detection/models/sequence_detection/dataset.py                    50     39    22%   29-36, 39, 42-44, 59-79, 100-118
+src/anomaly_detection/models/sequence_detection/inference.py                  58     44    24%   29-38, 45-55, 64-126
+src/anomaly_detection/models/sequence_detection/trainer.py                   107     87    19%   28-36, 54-70, 74-93, 98-112, 120-167, 177-216
+src/anomaly_detection/stores/__init__.py                                       0      0   100%
+src/anomaly_detection/stores/alert_store.py                                   41     22    46%   26, 33, 40, 59, 67, 74, 81-102
+src/anomaly_detection/stores/backends/__init__.py                              0      0   100%
+src/anomaly_detection/stores/backends/in_memory.py                            46     34    26%   20-22, 25, 28-30, 35, 48-88, 91-96, 99-100
+src/anomaly_detection/stores/backends/sqlite.py                               80     63    21%   23-25, 28-30, 33-75, 78-79, 110-111, 128-134, 171-227, 230-236, 239-247
+src/anomaly_detection/streaming/__init__.py                                    0      0   100%
+src/classification/__init__.py                                                 5      0   100%
+src/classification/classifier.py                                              80     64    20%   27-28, 34-35, 41-44, 55-115, 138-176, 187-196, 203-208
+src/classification/config.py                                                   9      0   100%
+src/classification/dataset.py                                                 42     28    33%   33-48, 54, 60-65, 82-106, 112
+src/classification/trainer.py                                                 29     20    31%   19, 32-85
+src/cold_start/__init__.py                                                     0      0   100%
+src/cold_start/config.py                                                       6      6     0%   5-40
+src/cold_start/event_counter.py                                               44     44     0%   5-84
+src/cold_start/handler.py                                                     52     52     0%   5-150
+src/drift/__init__.py                                                          3      0   100%
+src/drift/config.py                                                            6      0   100%
+src/drift/ewma_updater.py                                                     38     20    47%   38-39, 50-51, 73-93, 101-102, 112-113, 120-121
+src/explainability/__init__.py                                                 3      0   100%
+src/explainability/attribution_engine.py                                      60     46    23%   25, 32-64, 70-100, 106-136
+src/explainability/config.py                                                   9      0   100%
+src/explainability/consistency_validator.py                                   27     17    37%   33, 40-68
+src/explainability/engine.py                                                  49     37    24%   28-33, 48-115
+src/explainability/feature_phrase_map.py                                       1      0   100%
+src/explainability/narrative_translator.py                                   102     89    13%   17, 23-32, 38-59, 65-85, 92-103, 127-195
+src/explainability/templates/__init__.py                                      10      0   100%
+src/explainability/templates/brute_force.py                                    1      0   100%
+src/explainability/templates/cold_start_modifier.py                            1      0   100%
+src/explainability/templates/credential_stuffing.py                            1      0   100%
+src/explainability/templates/device_spoofing.py                                1      0   100%
+src/explainability/templates/impossible_travel.py                              1      0   100%
+src/explainability/templates/insider_drift.py                                  2      0   100%
+src/explainability/templates/lateral_movement.py                               1      0   100%
+src/explainability/templates/low_and_slow.py                                   2      0   100%
+src/explainability/templates/unclassified.py                                   1      0   100%
+src/orchestrator/__init__.py                                                   4      0   100%
+src/orchestrator/alert_builder.py                                             31     13    58%   43-44, 74-77, 82-88
+src/orchestrator/config.py                                                     6      0   100%
+src/orchestrator/pipeline.py                                                  67     32    52%   145-157, 161-197, 201
+src/profiling/__init__.py                                                      5      0   100%
+src/profiling/config.py                                                       11      0   100%
+src/profiling/population_prior.py                                             38     24    37%   23-25, 41-56, 71, 77-85, 91-94
+src/profiling/profile_model.py                                                82     58    29%   54-56, 66-127, 140-192
+src/profiling/profile_store.py                                                28     15    46%   24-27, 34, 41, 47, 53-65, 71-75
+--------------------------------------------------------------------------------------------------------
+TOTAL                                                                       3554   2544    28%
+
+=========================== short test summary info ============================
+ERROR tests/api/test_inference_router.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+========================= 3 warnings, 1 error in 6.85s =========================
