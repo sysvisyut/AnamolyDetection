@@ -2,7 +2,7 @@
 # AI-Powered Behavioral Anomaly Detection — Progress Tracker
 
 > **Last Updated:** 2026-07-26
-> **Overall Completion %:** ~53%
+> **Overall Completion %:** ~66%
 
 ## 1. Module Status
 
@@ -11,8 +11,8 @@
 | M01 | Project Scaffolding & Configuration | T1 | Complete | 100% | None | Scaffolding complete; tests passing. |
 | M02 | Core Data Contracts & Validators | T1 | Complete | 100% | None | Models implemented per M02 spec, 100% coverage. |
 | M03 | Synthetic Data Gen (Core & Profiles) | T1 | Complete | 100% | None | Generator fully implemented; 32 tests pass, 97% coverage; 500-entity/59k-event run validated. |
-| M04 | Synthetic Data Gen (Attack Injection) | T1 | Pending | 0% | None | |
-| M05 | Entity Profile & Alert Stores | T1 | Pending | 50% | None | ProfileStore implemented in src/profiling; Alert Store pending. |
+| M04 | Synthetic Data Gen (Attack Injection) | T1 | Complete | 100% | None | All 7 attackers implemented. 33 tests passing with >90% coverage. |
+| M05 | Entity Profile & Alert Stores | T1 | Complete | 100% | None | ProfileStore in src/profiling; AlertStore with SQLite/InMemory in src/anomaly_detection/stores. All CRUD tests pass. |
 | M06 | Feature Engineering Pipeline | T1 | Complete | 100% | None | 9 modules; 97 tests pass; coverage: config=100%, encoders=97%, extractor=100%, pipeline=100%, geo=100%, interface=95%, seq_builder=98%, session_builder=96%, __init__=100%. All 8 acceptance criteria satisfied. |
 | M07 | Behavioral Profiling Model (BPM) | T1 | Complete | 100% | None | Implemented statistical Z-score model, population priors, and ExtendedProfilingOutput. 7 tests pass; >90% coverage. |
 | M08 | Sequence Detection Model (SDM) | T1 | Complete | 100% | None | Implemented GRU Autoencoder, dataset pipeline, inference engine, Captum hooks, and 7 passing tests. |

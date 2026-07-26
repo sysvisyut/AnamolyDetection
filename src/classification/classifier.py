@@ -2,7 +2,6 @@
 Anomaly Classifier Implementation (M08).
 """
 
-
 import lightgbm as lgb
 import numpy as np
 from anomaly_detection.common.models.enums import AnomalyCategory
@@ -20,7 +19,7 @@ from src.classification.dataset import INT_TO_LABEL
 
 class AnomalyClassifier:
     """
-    Standalone LightGBM Multi-Class Classifier mapping Detection/Profiling 
+    Standalone LightGBM Multi-Class Classifier mapping Detection/Profiling
     outputs to specific attack categories.
     """
 
@@ -48,7 +47,7 @@ class AnomalyClassifier:
         self,
         detection_output: DetectionOutput,
         profiling_output: ProfilingOutput,
-        feature_vector: EntityFeatureVector
+        feature_vector: EntityFeatureVector,
     ) -> ClassificationOutput:
         """
         Classifies an anomaly using the fused inputs and feature vector.
@@ -61,10 +60,13 @@ class AnomalyClassifier:
 
         anomaly_score = detection_output.anomaly_score
 
-        # profiling_output might be an ExtendedProfilingOutput with deviation_score and profile_age,
-        # or we fallback to anomaly_score if it's the standard ProfilingOutput.
-        deviation_score = getattr(profiling_output, "deviation_score", profiling_output.anomaly_score)
-        profile_age = getattr(profiling_output, "profile_age", 100) # assume fully mature if missing
+        # ExtendedProfilingOutput carries these additions; standard output does not.
+        deviation_score = getattr(
+            profiling_output, "deviation_score", profiling_output.anomaly_score
+        )
+        profile_age = getattr(
+            profiling_output, "profile_age", 100
+        )  # assume fully mature if missing
 
         age_norm = min(profile_age / self.config.max_profile_age_for_norm, 1.0)
 
@@ -75,7 +77,9 @@ class AnomalyClassifier:
         preds = self.model.predict(X)[0]
 
         # 3. Apply Cold-Start Discounting
-        is_cold_start = profiling_output.cold_start_flag or detection_output.cold_start_flag
+        is_cold_start = (
+            profiling_output.cold_start_flag or detection_output.cold_start_flag
+        )
         if is_cold_start:
             preds = preds * self.config.cold_start_discount_factor
 
@@ -103,7 +107,9 @@ class AnomalyClassifier:
         # The sum of LGBM preds might be < 1.0 due to the cold-start discount.
         # The remaining probability mass is assigned to 'unclassified'.
         sum_probs = sum(class_probabilities.values())
-        class_probabilities[AnomalyCategory.UNCLASSIFIED.value] = max(0.0, 1.0 - sum_probs)
+        class_probabilities[AnomalyCategory.UNCLASSIFIED.value] = max(
+            0.0, 1.0 - sum_probs
+        )
 
         # 7. Construct and return ClassificationOutput
         return ClassificationOutput(
@@ -111,8 +117,10 @@ class AnomalyClassifier:
             event_id=detection_output.event_id,
             predicted_class=predicted_category,
             class_probabilities=class_probabilities,
-            classification_confidence=max_prob if predicted_category != AnomalyCategory.UNCLASSIFIED else class_probabilities[AnomalyCategory.UNCLASSIFIED.value],
-            is_anomaly=True  # Assuming it's an anomaly if it reached this stage, or infer from fused logic elsewhere
+            classification_confidence=max_prob
+            if predicted_category != AnomalyCategory.UNCLASSIFIED
+            else class_probabilities[AnomalyCategory.UNCLASSIFIED.value],
+            is_anomaly=True,
         )
 
     def classify_signal(
@@ -131,16 +139,23 @@ class AnomalyClassifier:
             raise RuntimeError("Model is not loaded. Call load_model() or train first.")
 
         classifier_input = np.array(
-            [[signal.fused_score, signal.bpm_score, signal.sdm_score, *feature_vector.root]]
+            [
+                [
+                    signal.fused_score,
+                    signal.bpm_score,
+                    signal.sdm_score,
+                    *feature_vector.root,
+                ]
+            ]
         )
         probabilities = self._predict_probabilities(classifier_input)
-        class_probabilities = {
-            category.value: 0.0 for category in AnomalyCategory
-        }
+        class_probabilities = {category.value: 0.0 for category in AnomalyCategory}
         for index, probability in enumerate(probabilities):
             class_probabilities[INT_TO_LABEL[index]] = float(probability)
 
-        predicted_category = AnomalyCategory(INT_TO_LABEL[int(np.argmax(probabilities))])
+        predicted_category = AnomalyCategory(
+            INT_TO_LABEL[int(np.argmax(probabilities))]
+        )
         if signal.is_anomaly and predicted_category == AnomalyCategory.NORMAL:
             predicted_category = self._highest_attack_category(class_probabilities)
         elif not signal.is_anomaly:
@@ -171,17 +186,25 @@ class AnomalyClassifier:
         """Validate one LightGBM multi-class probability prediction."""
         predicted = np.asarray(self.model.predict(classifier_input)[0], dtype=float)
         if predicted.shape != (len(INT_TO_LABEL),):
-            raise ValueError("Classifier model must return probabilities for all 8 classes")
+            raise ValueError(
+                "Classifier model must return probabilities for all 8 classes"
+            )
         if np.any(predicted < 0.0) or not np.isclose(predicted.sum(), 1.0):
-            raise ValueError("Classifier model probabilities must be non-negative and sum to 1.0")
+            raise ValueError(
+                "Classifier model probabilities must be non-negative and sum to 1.0"
+            )
         return predicted
 
     @staticmethod
-    def _highest_attack_category(class_probabilities: dict[str, float]) -> AnomalyCategory:
+    def _highest_attack_category(
+        class_probabilities: dict[str, float],
+    ) -> AnomalyCategory:
         """Choose the most probable non-normal category for a flagged event."""
         attack_categories = [
             category
             for category in AnomalyCategory
             if category not in {AnomalyCategory.NORMAL, AnomalyCategory.UNCLASSIFIED}
         ]
-        return max(attack_categories, key=lambda category: class_probabilities[category.value])
+        return max(
+            attack_categories, key=lambda category: class_probabilities[category.value]
+        )

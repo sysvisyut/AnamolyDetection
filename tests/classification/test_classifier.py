@@ -16,13 +16,15 @@ class MockModel:
     def predict(self, X):
         return self.pred_probs
 
+
 @pytest.fixture
 def config():
     return ClassifierConfig(
         confidence_threshold=0.6,
         cold_start_discount_factor=0.8,
-        max_profile_age_for_norm=100
+        max_profile_age_for_norm=100,
     )
+
 
 @pytest.fixture
 def classifier(config):
@@ -32,6 +34,7 @@ def classifier(config):
     pred_probs = np.array([[0.05, 0.05, 0.05, 0.05, 0.7, 0.05, 0.02, 0.03]])
     clf.model = MockModel(pred_probs)
     return clf
+
 
 @pytest.fixture
 def inputs():
@@ -43,7 +46,7 @@ def inputs():
         anomaly_score=0.8,
         confidence=0.9,
         cold_start_flag=False,
-        top_contributing_features=["f1"]
+        top_contributing_features=["f1"],
     )
     prof_out = ExtendedProfilingOutput(
         entity_id="user_1",
@@ -57,7 +60,7 @@ def inputs():
         per_feature_deviations={"f2": 0.5},
         entity_status="warm",
         is_cold_start=False,
-        profile_age=150
+        profile_age=150,
     )
     return det_out, prof_out, fvec
 
@@ -74,6 +77,7 @@ def test_classify_normal(classifier, inputs):
     # Check that probabilities sum to 1.0
     assert pytest.approx(sum(out.class_probabilities.values())) == 1.0
 
+
 def test_classify_unclassified_fallback(classifier, inputs):
     det_out, prof_out, fvec = inputs
 
@@ -83,12 +87,10 @@ def test_classify_unclassified_fallback(classifier, inputs):
     out = classifier.classify(det_out, prof_out, fvec)
 
     assert out.predicted_class == AnomalyCategory.UNCLASSIFIED
-    # Maximum probability was 0.7, so UNCLASSIFIED gets 0.0 probability because 0.7 + other probs = 1.0
-    # Wait, the fallback is just the category assignment. The distribution still sums to 1.0.
-    # UNCLASSIFIED will have probability 0.0 since sum(LGBM probs) = 1.0.
-    # classification_confidence for UNCLASSIFIED is the probability of UNCLASSIFIED, which is 0.0.
+    # The legacy path keeps its original distribution and only changes the label.
     assert out.predicted_class == AnomalyCategory.UNCLASSIFIED
     assert out.classification_confidence == 0.0
+
 
 def test_classify_cold_start_discount(classifier, inputs):
     det_out, prof_out, fvec = inputs
@@ -99,17 +101,22 @@ def test_classify_cold_start_discount(classifier, inputs):
     out = classifier.classify(det_out, prof_out, fvec)
 
     # 0.7 * 0.8 (discount) = 0.56
-    # This is below the default confidence_threshold of 0.6, so it falls back to UNCLASSIFIED!
+    # This is below the default confidence threshold, so it is unclassified.
     assert out.predicted_class == AnomalyCategory.UNCLASSIFIED
 
     # Check that UNCLASSIFIED got the remaining probability mass
     # Sum of LGBM preds was 1.0. Now it's 0.8. So 0.2 goes to UNCLASSIFIED.
-    assert pytest.approx(out.class_probabilities[AnomalyCategory.UNCLASSIFIED.value]) == 0.2
+    assert (
+        pytest.approx(out.class_probabilities[AnomalyCategory.UNCLASSIFIED.value])
+        == 0.2
+    )
     assert pytest.approx(out.classification_confidence) == 0.2
     assert pytest.approx(sum(out.class_probabilities.values())) == 1.0
 
 
-def test_classify_signal_uses_boundary_g_and_preserves_anomaly_decision(classifier, inputs):
+def test_classify_signal_uses_boundary_g_and_preserves_anomaly_decision(
+    classifier, inputs
+):
     """The repaired inference path consumes score fusion's boundary-G signal."""
     _, _, fvec = inputs
     signal = UnifiedAnomalySignal(

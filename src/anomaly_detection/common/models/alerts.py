@@ -64,3 +64,21 @@ class Alert(BaseModel):
     analyst_notes: Optional[str] = Field(None, max_length=2000, description="Analyst annotation (T3)")
 
     model_config = {"from_attributes": True}
+
+
+class AlertSummary(BaseModel):
+    """
+    Lightweight alert model for the alert queue (Boundary K).
+    Matches RenderedAlertData in DATA_SCHEMA.md §5e.
+    """
+    alert_id: str = Field(..., description="UUID v4; primary key")
+    entity_id: str = Field(..., min_length=1, description="Entity that triggered the alert")
+    timestamp: str = Field(..., description="ISO-8601 UTC of the event")
+    risk_score: int = Field(..., ge=0, le=100, description="Composite risk score [0, 100]")
+    risk_tier: str = Field(..., description='Enum: "low", "medium", "high", "critical"')
+    attack_class: AnomalyCategory = Field(..., description="Predicted attack category")
+    classification_confidence: float = Field(..., ge=0.0, le=1.0, description="Classifier confidence")
+    cold_start_flag: bool = Field(..., description="True if entity had insufficient history")
+    human_readable_explanation: str = Field(..., max_length=150, description="Truncated natural language explanation")
+
+    model_config = {"from_attributes": True}
