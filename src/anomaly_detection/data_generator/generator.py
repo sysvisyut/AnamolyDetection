@@ -757,7 +757,6 @@ class DataGenerator:
                 },
                 "failure_count": failure_count,
                 "label": AnomalyCategory.NORMAL.value,
-                "cold_start_flag": profile.is_late_joiner,
             }
             rows.append(row)
 

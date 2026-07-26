@@ -22,6 +22,7 @@
 | M12 | FastAPI Core & Inference Endpoint | T1 | Complete | 100% | None | All tests pass, integrated with orchestrator. |
 | M13 | Read Endpoints & Async Streaming | T1/T2 | Complete | 100% | None | Implemented streaming interface and historical data endpoints. All tests pass, integrated with `src/anomaly_detection/api/routers/` and `src/anomaly_detection/streaming/`. |
 | M14 | Dashboard UX | T1 | Complete | 100% | None | Built static SPA with vanilla HTML/JS/CSS for Analyst Dashboard (Boundary K). Served successfully without bundlers. Implemented ranked alert queue, entity details pane with explainability, and event history. |
+| M14.5| Contract Boundary Audit | T1 | Complete | 100% | None | INTERFACE_VALIDATION.md report generated. `cold_start_flag` removed from generator, cleanly traced from E -> K. Boundaries validated. |
 | M15 | Model Evaluation & T3 Polish | T2/T3 | Complete | 100% | None | Evaluation completed across standard and edge-case synthetic datasets; final polish applied to system parameters. |
 
 ## 2. Integration Status
@@ -36,7 +37,7 @@
 ## 3. Testing Status
 
 - **Unit Tests:** Feature Engineering complete (97 tests, ≥95% coverage per module)
-- **Contract Boundary Validation:** Not Started
+- **Contract Boundary Validation:** Complete (Phase 14.5 Audit finished; structurally sound)
 - **Integration Tests:** Not Started
 
 ## 4. Known Technical Debt

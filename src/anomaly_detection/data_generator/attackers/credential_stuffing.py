@@ -131,7 +131,6 @@ class CredentialStuffingAttacker(BaseAttacker):
                         "session_duration": 0.0,
                         "command_sequence": "[]",
                         "label": AnomalyCategory.CREDENTIAL_STUFFING.value,
-                        "cold_start_flag": profile.is_late_joiner,
                     }
                     all_rows.append(row)
                     entity_event_ids.append(event_id)
@@ -153,7 +152,6 @@ class CredentialStuffingAttacker(BaseAttacker):
                         "auth_outcome": "success",
                         "failure_count": 0,
                         "label": AnomalyCategory.CREDENTIAL_STUFFING.value,
-                        "cold_start_flag": profile.is_late_joiner,
                     }
                     all_rows.append(row)
                     entity_event_ids.append(event_id)

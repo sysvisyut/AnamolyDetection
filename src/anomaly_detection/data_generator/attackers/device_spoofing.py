@@ -103,7 +103,6 @@ class DeviceSpoofingAttacker(BaseAttacker):
                     "auth_outcome": "success",
                     "failure_count": 0,
                     "label": AnomalyCategory.DEVICE_SPOOFING.value,
-                    "cold_start_flag": profile.is_late_joiner,
                 }
                 rows.append(row)
                 event_ids.append(event_id)

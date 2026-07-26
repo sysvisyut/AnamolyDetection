@@ -129,7 +129,6 @@ class ImpossibleTravelAttacker(BaseAttacker):
                 "auth_outcome": "success",
                 "failure_count": 0,
                 "label": AnomalyCategory.IMPOSSIBLE_TRAVEL.value,
-                "cold_start_flag": profile.is_late_joiner,
             }
             rows.append(row)
             event_ids.append(event_id)

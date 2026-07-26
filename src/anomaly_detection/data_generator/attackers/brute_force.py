@@ -95,7 +95,6 @@ class BruteForceAttacker(BaseAttacker):
                     "session_duration": 0.0,
                     "command_sequence": "[]",
                     "label": AnomalyCategory.BRUTE_FORCE.value,
-                    "cold_start_flag": profile.is_late_joiner,
                 }
                 rows.append(row)
                 event_ids.append(event_id)
@@ -118,7 +117,6 @@ class BruteForceAttacker(BaseAttacker):
                         np.exp(self.rng.normal(profile.session_duration_mu, profile.session_duration_sigma))
                     ),
                     "label": AnomalyCategory.BRUTE_FORCE.value,
-                    "cold_start_flag": profile.is_late_joiner,
                 }
                 rows.append(row)
                 event_ids.append(event_id)

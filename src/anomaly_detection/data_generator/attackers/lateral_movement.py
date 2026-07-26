@@ -124,7 +124,6 @@ class LateralMovementAttacker(BaseAttacker):
                     "session_duration": min(float(elapsed), 7200.0),
                     "command_sequence": json.dumps(event_cmds),
                     "label": AnomalyCategory.LATERAL_MOVEMENT.value,
-                    "cold_start_flag": profile.is_late_joiner,
                 }
                 rows.append(row)
                 event_ids.append(event_id)

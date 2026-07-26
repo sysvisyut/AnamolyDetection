@@ -135,7 +135,6 @@ class LowAndSlowAttacker(BaseAttacker):
                     "session_duration": round(session_dur, 2),
                     "command_sequence": json.dumps(exfil_command_entry),
                     "label": AnomalyCategory.LOW_AND_SLOW.value,
-                    "cold_start_flag": profile.is_late_joiner,
                 }
                 rows.append(row)
                 event_ids.append(event_id)

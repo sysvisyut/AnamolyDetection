@@ -196,7 +196,6 @@ class InsiderDriftAttacker(BaseAttacker):
                     ),
                     "command_sequence": json.dumps(normal_cmds),  # AMBIGUITY: no exfil commands
                     "label": AnomalyCategory.INSIDER_DRIFT.value,
-                    "cold_start_flag": profile.is_late_joiner,
                 }
                 rows.append(row)
                 event_ids.append(event_id)
