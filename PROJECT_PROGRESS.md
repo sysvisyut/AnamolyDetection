@@ -15,7 +15,7 @@
 | M05 | Entity Profile & Alert Stores | T1 | Pending | 50% | None | ProfileStore implemented in src/profiling; Alert Store pending. |
 | M06 | Feature Engineering Pipeline | T1 | Complete | 100% | None | 9 modules; 97 tests pass; coverage: config=100%, encoders=97%, extractor=100%, pipeline=100%, geo=100%, interface=95%, seq_builder=98%, session_builder=96%, __init__=100%. All 8 acceptance criteria satisfied. |
 | M07 | Behavioral Profiling Model (BPM) | T1 | Complete | 100% | None | Implemented statistical Z-score model, population priors, and ExtendedProfilingOutput. 7 tests pass; >90% coverage. |
-| M08 | Sequence Detection Model (SDM) | T1 | Pending | 0% | M05 | |
+| M08 | Sequence Detection Model (SDM) | T1 | Complete | 100% | None | Implemented GRU Autoencoder, dataset pipeline, inference engine, Captum hooks, and 7 passing tests. |
 | M09 | Score Fusion & Classifier | T1 | Pending | 0% | M07, M08 | |
 | M10 | Explainability Layer | T1 | Pending | 0% | None | |
 | M11 | Orchestrator, Cold-Start & Drift Update | T1/T2 | Pending | 0% | M05, M06 | |
