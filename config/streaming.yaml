@@ -1,0 +1,7 @@
+# streaming.yaml
+# Configuration for Simulated Streaming (T2)
+
+streaming:
+  # The time-compression factor for simulated streaming.
+  # e.g., 60.0 means 1 second of wall-clock time equals 60 seconds of simulated time.
+  compression_factor: 60.0

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from time import perf_counter
 from typing import Protocol
+import asyncio
 
 from anomaly_detection.common.models.access_log import AccessLogInference
 from anomaly_detection.common.models.alerts import Alert
@@ -140,6 +141,7 @@ class InferencePipeline:
         alert_store: AlertStoreInterface,
         cold_start_handler: ColdStartHandlerInterface | None = None,
         alert_builder: AlertBuilder | None = None,
+        alert_stream_queue: asyncio.Queue | None = None,
     ) -> None:
         """Initialize the pipeline with every upstream and downstream dependency."""
         self.config = config
@@ -154,6 +156,7 @@ class InferencePipeline:
         self.alert_store = alert_store
         self.cold_start_handler = cold_start_handler
         self.alert_builder = alert_builder or AlertBuilder()
+        self.alert_stream_queue = alert_stream_queue
         self.last_processing_latency_ms = 0.0
 
     def process(self, event: AccessLogInference) -> Alert | None:
@@ -193,6 +196,32 @@ class InferencePipeline:
 
         alert = self.alert_builder.build(event, signal, classification, explanation)
         self.alert_store.save_alert(alert)
+        
+        if self.alert_stream_queue is not None:
+            # We construct the lightweight summary to push
+            from anomaly_detection.common.models.alerts import AlertSummary
+            summary = AlertSummary(
+                alert_id=alert.alert_id,
+                entity_id=alert.entity_id,
+                timestamp=alert.timestamp,
+                risk_score=alert.risk.risk_score,
+                risk_tier=alert.risk.risk_tier,
+                attack_class=alert.attack_class,
+                classification_confidence=alert.classification_confidence,
+                cold_start_flag=alert.cold_start_flag,
+                human_readable_explanation=alert.explanation.human_readable_explanation[:150]
+            )
+            # using put_nowait so it doesn't block the synchronous processing thread if possible
+            # wait, this process() is synchronous, so we can use put_nowait?
+            # Actually put_nowait is safe from synchronous threads if called from the same event loop.
+            # But process() might be running in a thread pool (FastAPI BackgroundTasks run in a threadpool).
+            # We must use call_soon_threadsafe!
+            try:
+                loop = asyncio.get_running_loop()
+                loop.call_soon_threadsafe(self.alert_stream_queue.put_nowait, summary)
+            except RuntimeError:
+                pass
+                
         self._record_latency(started_at)
         return alert
 

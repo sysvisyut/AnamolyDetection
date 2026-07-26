@@ -1,6 +1,7 @@
 """FastAPI application factory and lifespan management."""
 
 import logging
+import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
@@ -114,6 +115,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     drift_config = DriftConfig()
     ewma_updater = EWMAUpdater(config=drift_config, profile_store=profile_store)
     alert_builder = AlertBuilder()
+    
+    alert_stream_queue = asyncio.Queue()
 
     # 4. Assemble Orchestrator
     orchestrator = InferencePipeline(
@@ -127,13 +130,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         explainability=explainability,
         ewma_updater=ewma_updater,
         alert_store=alert_store,
-        alert_builder=alert_builder
+        alert_builder=alert_builder,
+        alert_stream_queue=alert_stream_queue
     )
 
     # Attach to app state
     app.state.orchestrator = orchestrator
     app.state.profile_store = profile_store
     app.state.alert_store = alert_store
+    app.state.alert_stream_queue = alert_stream_queue
     
     logger.info("Application startup complete.")
     yield
@@ -161,9 +166,17 @@ def create_app() -> FastAPI:
     setup_middleware(app, cors_origins)
 
     # Register Routers
+    from anomaly_detection.api.routers import inference, alerts, entities
     app.include_router(inference.router, prefix="/api/v1/inference", tags=["Inference"])
     app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["Alerts"])
     app.include_router(entities.router, prefix="/api/v1/entities", tags=["Entities"])
+    
+    # [T2] Simulated Streaming Optional Guard
+    try:
+        from anomaly_detection.api.routers import stream
+        app.include_router(stream.router, prefix="/api/v1/stream", tags=["Stream"])
+    except ImportError:
+        logger.info("Streaming module not available. Running in T1-only mode.")
 
     @app.get("/health")
     async def health_check():

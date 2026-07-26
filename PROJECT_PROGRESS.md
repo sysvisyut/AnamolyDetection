@@ -20,7 +20,7 @@
 | M10 | Explainability Layer | T1 | Complete | 100% | None | Implemented attribution engine (SHAP + Captum IG), narrative translator with Insider Drift heuristics, and consistency validator. 5 passing tests with >80% coverage. |
 | M11 | Orchestrator, Cold-Start & Drift Update | T1/T2 | Complete | 100% | None | Cold-Start Handler and gated EWMA updater implemented. EWMA updates only when fused score < 0.4, increments profile versions, and preserves high-risk/Insider Drift baselines. Drift suite: 8 tests, 100% module coverage. |
 | M12 | FastAPI Core & Inference Endpoint | T1 | Complete | 100% | None | All tests pass, integrated with orchestrator. |
-| M13 | Read Endpoints & Async Streaming | T1/T2 | Pending | 0% | None | |
+| M13 | Read Endpoints & Async Streaming | T1/T2 | Complete | 100% | None | Implemented streaming interface and historical data endpoints. All tests pass, integrated with `src/anomaly_detection/api/routers/` and `src/anomaly_detection/streaming/`. |
 | M14 | Dashboard UX | T1 | Pending | 0% | None | |
 | M15 | Model Evaluation & T3 Polish | T2/T3 | Pending | 0% | None | |
 

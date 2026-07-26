@@ -1,5 +1,6 @@
 """FastAPI dependency injection wiring."""
 
+import asyncio
 from fastapi import Request
 from anomaly_detection.stores.alert_store import AbstractAlertStore
 from src.profiling.profile_store import ProfileStore
@@ -28,3 +29,8 @@ def get_profile_store(request: Request) -> ProfileStore:
     if not profile_store:
         raise RuntimeError("ProfileStore is not initialized in app state.")
     return profile_store
+
+
+def get_alert_stream_queue(request: Request) -> asyncio.Queue | None:
+    """Retrieve the global SSE alert queue from app state."""
+    return getattr(request.app.state, "alert_stream_queue", None)
