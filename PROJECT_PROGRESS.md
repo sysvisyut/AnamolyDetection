@@ -1,8 +1,8 @@
 # PROJECT_PROGRESS.md
 # AI-Powered Behavioral Anomaly Detection — Progress Tracker
 
-> **Last Updated:** 2026-07-25
-> **Overall Completion %:** ~27%
+> **Last Updated:** 2026-07-26
+> **Overall Completion %:** ~53%
 
 ## 1. Module Status
 
@@ -18,7 +18,7 @@
 | M08 | Sequence Detection Model (SDM) | T1 | Complete | 100% | None | Implemented GRU Autoencoder, dataset pipeline, inference engine, Captum hooks, and 7 passing tests. |
 | M09 | Score Fusion & Classifier | T1 | Pending | 50% | None | Anomaly Classifier implemented with standalone LightGBM. Score Fusion pending. |
 | M10 | Explainability Layer | T1 | Complete | 100% | None | Implemented attribution engine (SHAP + Captum IG), narrative translator with Insider Drift heuristics, and consistency validator. 5 passing tests with >80% coverage. |
-| M11 | Orchestrator, Cold-Start & Drift Update | T1/T2 | Pending | 50% | M05, M06 | Cold-Start Handler implemented with atomic event counter, graduation logic, and confidence discounting. O(1) passthrough for warm entities. Tests passing at >90% coverage. |
+| M11 | Orchestrator, Cold-Start & Drift Update | T1/T2 | Complete | 100% | None | Cold-Start Handler and gated EWMA updater implemented. EWMA updates only when fused score < 0.4, increments profile versions, and preserves high-risk/Insider Drift baselines. Drift suite: 8 tests, 100% module coverage. |
 | M12 | FastAPI Core & Inference Endpoint | T1 | Pending | 0% | None | |
 | M13 | Read Endpoints & Async Streaming | T1/T2 | Pending | 0% | None | |
 | M14 | Dashboard UX | T1 | Pending | 0% | None | |
@@ -28,7 +28,7 @@
 
 - **Data Generator -> Feature Engineering:** Ready (M06 `ProfileStoreInterface` defined; concrete store pending M05)
 - **Feature Engineering -> Models:** Not Started
-- **Models -> Explainability:** Not Started
+- **Models -> Explainability:** Ready; M10 explainability and M11 drift components are independently verified. End-to-end orchestration remains pending M12.
 - **Explainability -> Alert Store:** Not Started
 - **FastAPI -> Dashboard:** Not Started
 - **Full End-to-End Streaming:** Not Started
