@@ -24,6 +24,7 @@ class ModelScore(BaseModel):
 class ProfilingOutput(ModelScore):
     """Output of the Behavioral Profiling Model."""
     model_id: Literal["bpm"] = Field("bpm", description="BPM model identifier")
+    ambiguity_reason: Optional[str] = Field(None, description="Populated by M10 for cold-start entities")
 
 
 class DetectionOutput(ModelScore):
