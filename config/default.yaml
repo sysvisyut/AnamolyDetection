@@ -15,6 +15,9 @@ model_params:
   sdm_hidden_size: 64
   sdm_num_layers: 2
   fusion_threshold: 0.5
+  fusion_weights:
+    bpm: 0.5
+    sdm: 0.5
 
 stores:
   alert_store:

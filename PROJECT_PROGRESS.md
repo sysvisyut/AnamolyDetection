@@ -16,7 +16,7 @@
 | M06 | Feature Engineering Pipeline | T1 | Complete | 100% | None | 9 modules; 97 tests pass; coverage: config=100%, encoders=97%, extractor=100%, pipeline=100%, geo=100%, interface=95%, seq_builder=98%, session_builder=96%, __init__=100%. All 8 acceptance criteria satisfied. |
 | M07 | Behavioral Profiling Model (BPM) | T1 | Complete | 100% | None | Implemented statistical Z-score model, population priors, and ExtendedProfilingOutput. 7 tests pass; >90% coverage. |
 | M08 | Sequence Detection Model (SDM) | T1 | Complete | 100% | None | Implemented GRU Autoencoder, dataset pipeline, inference engine, Captum hooks, and 7 passing tests. |
-| M09 | Score Fusion & Classifier | T1 | Pending | 50% | None | Anomaly Classifier implemented with standalone LightGBM. Score Fusion pending. |
+| M09 | Score Fusion & Classifier | T1 | Complete | 100% | None | Anomaly Classifier implemented with standalone LightGBM. Score Fusion implemented and verified via end-to-end integration test. |
 | M10 | Explainability Layer | T1 | Complete | 100% | None | Implemented attribution engine (SHAP + Captum IG), narrative translator with Insider Drift heuristics, and consistency validator. 5 passing tests with >80% coverage. |
 | M11 | Orchestrator, Cold-Start & Drift Update | T1/T2 | Complete | 100% | None | Cold-Start Handler and gated EWMA updater implemented. EWMA updates only when fused score < 0.4, increments profile versions, and preserves high-risk/Insider Drift baselines. Drift suite: 8 tests, 100% module coverage. |
 | M12 | FastAPI Core & Inference Endpoint | T1 | Pending | 0% | None | |
@@ -28,7 +28,7 @@
 
 - **Data Generator -> Feature Engineering:** Ready (M06 `ProfileStoreInterface` defined; concrete store pending M05)
 - **Feature Engineering -> Models:** Not Started
-- **Models -> Explainability:** Ready; M10 explainability and M11 drift components are independently verified. End-to-end orchestration remains pending M12.
+- **Models -> Explainability:** Complete; orchestrated end-to-end via InferencePipeline with real fusion, classifier, and explainability components.
 - **Explainability -> Alert Store:** Not Started
 - **FastAPI -> Dashboard:** Not Started
 - **Full End-to-End Streaming:** Not Started
