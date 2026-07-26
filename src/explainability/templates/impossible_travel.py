@@ -1,0 +1,1 @@
+PREFIX = "Impossible travel detected"

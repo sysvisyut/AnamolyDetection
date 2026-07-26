@@ -114,6 +114,7 @@ Verified that `EVAL_METRICS.md` protocols are executable given the data generate
 | 1 | **BLOCKING** | `SYNTHETIC_DATA_GENERATOR_DESIGN.md`, `EVAL_METRICS.md` | Data Generator design does not natively produce true Cold-Start holdout entities, which will break the Cold-Start evaluation script. | Append a requirement to the generator design to explicitly partition 5% of entities as "Late Joiners" whose first event occurs on Day 26. |
 | 2 | **BLOCKING** | `ML_PIPELINE.md`, `COLDSTART_DRIFT_STRATEGY.md` | The ML Pipeline step list does not explicitly include the "Profile Update" step required to execute the Gated EWMA drift logic after inference. | Ensure the inference orchestrator executes profile upsert as the final step before alert persistence. |
 | 3 | Non-Blocking | `DATA_SCHEMA.md`, `API_SPEC.md` | `is_cold_start` vs `cold_start_flag` alias overlap. | Canonicalize to `cold_start_flag` in Python code. |
+| 4 | **BLOCKING** | `ML_PIPELINE.md`, `DATA_SCHEMA.md` | `classify()` signature lacked full feature access, and architecture choice was ambiguous. | Updated `classify()` signature to accept `EntityFeatureVector`. Confirmed LightGBM architecture with 27-feature vector. |
 
 ---
 

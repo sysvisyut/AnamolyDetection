@@ -524,7 +524,7 @@ DriftMetrics:
 | `feature_value` | `float` | Actual normalized value at inference time | What the feature value was |
 | `attribution_score` | `float` | Signed; magnitude indicates importance | SHAP value (BPM) or Captum Integrated Gradient (SDM); positive = pushes toward anomalous |
 | `direction` | `str` | `"toward_anomaly"` if `attribution_score > 0`, else `"toward_normal"` | Human-readable direction |
-| `source_model` | `str` | `"bpm"` or `"sdm"` | Which model this attribution came from |
+| `source_model` | `str` | `"bpm"`, `"sdm"`, or `"bpm+sdm"` | Which model this attribution came from |
 | `human_label` | `str` | Plain-English feature description | e.g. `"geo_velocity_kmph"` → "Speed between consecutive logins (km/h)" |
 
 The `human_label` mapping for all 24 dimensions is maintained as a constant dict in `explainability/narrative.py`.
@@ -696,7 +696,9 @@ Nested JSON stored in a single SQLite column is the right fit for the T1 scope. 
 
 | Version | Date | Author | Change Summary | Affected Schemas | Components to Update |
 |---------|------|--------|----------------|-----------------|---------------------|
-| *(empty — no changes since initial publication)* | | | | | |
+| 1.0 | 2026-07-24 | Initial version | | | |
+| 1.1 | 2026-07-25 | Refined `ClassificationOutput` signature (M08) | Boundary H | M08 Classifier |
+| 1.2 | 2026-07-26 | Added `"bpm+sdm"` to `FeatureAttribution.source_model` (M09) | FeatureAttribution | API/Dashboard |
 
 ---
 
