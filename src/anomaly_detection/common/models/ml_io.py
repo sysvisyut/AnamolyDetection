@@ -2,7 +2,7 @@
 Machine Learning I/O contracts.
 """
 
-from typing import Dict, List, Literal
+from typing import Dict, List, Literal, Optional
 from pydantic import BaseModel, Field
 
 from anomaly_detection.common.models.enums import AnomalyCategory
@@ -55,5 +55,29 @@ class ClassificationOutput(BaseModel):
     class_probabilities: Dict[str, float] = Field(..., description="Full posterior distribution over attack classes")
     classification_confidence: float = Field(..., ge=0.0, le=1.0, description="The winning class's probability")
     is_anomaly: bool = Field(..., description="Propagated from UnifiedAnomalySignal.is_anomaly")
+
+    model_config = {"from_attributes": True}
+
+
+class FeatureAttribution(BaseModel):
+    """Individual feature contribution record."""
+    feature_name: str = Field(..., description="Which feature contributed")
+    feature_value: float = Field(..., description="Actual normalized value at inference time")
+    attribution_score: float = Field(..., description="Signed; magnitude indicates importance")
+    direction: str = Field(..., description='"toward_anomaly" or "toward_normal"')
+    source_model: str = Field(..., description='"bpm", "sdm" or "bpm+sdm"')
+    human_label: str = Field(..., description="Plain-English feature description")
+
+    model_config = {"from_attributes": True}
+
+
+class Explanation(BaseModel):
+    """M09 output containing narrative and attributions."""
+    narrative: str = Field(..., description="Human-readable explanation sentence")
+    feature_attributions: List[FeatureAttribution] = Field(..., description="Ranked attributions")
+    predicted_category: AnomalyCategory = Field(..., description="The predicted attack category")
+    consistency_check_passed: bool = Field(..., description="Result of the consistency validator")
+    is_ambiguous: bool = Field(..., description="True for ambiguous cases like insider drift")
+    ambiguity_reason: Optional[str] = Field(None, description="Human-readable reason for ambiguity")
 
     model_config = {"from_attributes": True}

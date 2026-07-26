@@ -17,7 +17,7 @@
 | M07 | Behavioral Profiling Model (BPM) | T1 | Complete | 100% | None | Implemented statistical Z-score model, population priors, and ExtendedProfilingOutput. 7 tests pass; >90% coverage. |
 | M08 | Sequence Detection Model (SDM) | T1 | Complete | 100% | None | Implemented GRU Autoencoder, dataset pipeline, inference engine, Captum hooks, and 7 passing tests. |
 | M09 | Score Fusion & Classifier | T1 | Pending | 50% | None | Anomaly Classifier implemented with standalone LightGBM. Score Fusion pending. |
-| M10 | Explainability Layer | T1 | Pending | 0% | None | |
+| M10 | Explainability Layer | T1 | Complete | 100% | None | Implemented attribution engine (SHAP + Captum IG), narrative translator with Insider Drift heuristics, and consistency validator. 5 passing tests with >80% coverage. |
 | M11 | Orchestrator, Cold-Start & Drift Update | T1/T2 | Pending | 0% | M05, M06 | |
 | M12 | FastAPI Core & Inference Endpoint | T1 | Pending | 0% | None | |
 | M13 | Read Endpoints & Async Streaming | T1/T2 | Pending | 0% | None | |

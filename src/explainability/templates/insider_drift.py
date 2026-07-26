@@ -1,0 +1,3 @@
+PREFIX = "Behavioral expansion pattern identified (not a confirmed attack — analyst review recommended)"
+
+TEMPLATE = "{prefix}. {entity_id} has accessed {new_resource_count} resources outside their normal profile over the past {drift_days} days, primarily in the {category} resource category (rarity score: {rarity:.2f}). This may indicate a role change or new project assignment, or it may indicate an insider threat. Notably, no off-hours access, authentication failures, device anomalies, or exfiltration commands were detected — only resource footprint expansion. Classification confidence: {confidence:.0%}. Suggested action: verify with HR or line manager whether a role or project change occurred for this entity."
