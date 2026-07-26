@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyst Dashboard - AI Anomaly Detection</title>
+    <link rel="stylesheet" href="styles/main.css">
+    
+    <!-- Chart.js for T2/T3 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Security Analyst Dashboard</h1>
+        <div class="controls">
+            <select id="filter-tier">
+                <option value="">All Risk Tiers</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+            <select id="filter-class">
+                <option value="">All Attack Classes</option>
+                <option value="normal">Normal</option>
+                <option value="brute_force">Brute Force</option>
+                <option value="impossible_travel">Impossible Travel</option>
+                <option value="credential_stuffing">Credential Stuffing</option>
+                <option value="lateral_movement">Lateral Movement</option>
+                <option value="device_spoofing">Device Spoofing</option>
+                <option value="low_and_slow_exfiltration">Low and Slow Exfil</option>
+                <option value="insider_drift">Insider Drift</option>
+            </select>
+            <button id="btn-refresh">Refresh Queue</button>
+            <button id="btn-stream">Start Stream</button>
+        </div>
+    </header>
+    
+    <div id="error-banner"></div>
+
+    <div class="main-container">
+        <!-- Left Pane: Alert Queue -->
+        <div class="alert-queue-pane">
+            <div class="table-container">
+                <table id="alerts-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Tier</th>
+                            <th>Score</th>
+                            <th>Entity ID</th>
+                            <th>Class</th>
+                            <th>Explanation summary</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alerts-tbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Right Pane: Details Sidebar -->
+        <div id="details-pane" class="details-pane">
+            <div class="empty-state">Select an alert to view details</div>
+        </div>
+    </div>
+    
+    <!-- Initialize app -->
+    <script type="module">
+        import EntityView from './scripts/entity_view.js';
+        import AlertQueue from './scripts/alert_queue.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const entityView = new EntityView();
+            const alertQueue = new AlertQueue(entityView);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+/* Dashboard main.css */
+
+:root {
+  --bg-color: #121212;
+  --panel-bg: #1e1e1e;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --border-color: #333333;
+  --accent-color: #4a90e2;
+  --hover-bg: #2a2a2a;
+  
+  --tier-critical: #ff4c4c;
+  --tier-high: #ffa500;
+  --tier-medium: #ffd700;
+  --tier-low: #4caf50;
+  
+  --badge-cold: #9c27b0;
+  --badge-drift: #e91e63;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+header {
+  background-color: var(--panel-bg);
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+h1, h2, h3 {
+  margin: 0 0 10px 0;
+}
+
+.controls {
+  display: flex;
+  gap: 15px;
+}
+
+.controls select, .controls button {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.controls button {
+  cursor: pointer;
+  background-color: var(--accent-color);
+  border: none;
+}
+
+.controls button:hover {
+  opacity: 0.9;
+}
+
+.main-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Left Pane: Alert Queue */
+.alert-queue-pane {
+  flex: 2;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.table-container {
+  flex: 1;
+  overflow-y: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  background-color: var(--panel-bg);
+  position: sticky;
+  top: 0;
+  cursor: pointer;
+  z-index: 10;
+}
+
+th:hover {
+  background-color: var(--hover-bg);
+}
+
+tr {
+  cursor: pointer;
+}
+
+tr:hover {
+  background-color: var(--hover-bg);
+}
+
+tr.selected {
+  background-color: #2c3e50;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.tier-critical { background-color: var(--tier-critical); color: #000; }
+.tier-high { background-color: var(--tier-high); color: #000; }
+.tier-medium { background-color: var(--tier-medium); color: #000; }
+.tier-low { background-color: var(--tier-low); color: #fff; }
+
+.cold-start-badge {
+  background-color: var(--badge-cold);
+  color: #fff;
+  margin-left: 5px;
+}
+
+/* Right Pane: Details Sidebar */
+.details-pane {
+  flex: 1;
+  background-color: var(--panel-bg);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.section {
+  margin-bottom: 25px;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.explanation-text {
+  background-color: var(--bg-color);
+  padding: 15px;
+  border-radius: 4px;
+  border-left: 4px solid var(--accent-color);
+  line-height: 1.5;
+}
+
+.feature-attributions {
+  margin-top: 15px;
+}
+
+.feature-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.feature-label {
+  flex: 1;
+  font-size: 0.9em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-container {
+  flex: 1;
+  background-color: var(--bg-color);
+  height: 10px;
+  border-radius: 5px;
+  margin: 0 10px;
+  position: relative;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  position: absolute;
+}
+
+.toward-anomaly {
+  background-color: var(--tier-critical);
+  width: 50%;
+  right: 50%; /* Grow towards left */
+  transform-origin: right;
+}
+
+.toward-normal {
+  background-color: var(--tier-low);
+  width: 50%;
+  left: 50%; /* Grow towards right */
+  transform-origin: left;
+}
+
+.feature-value {
+  width: 40px;
+  text-align: right;
+  font-size: 0.8em;
+  color: var(--text-secondary);
+}
+
+.entity-history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.entity-history-item {
+  padding: 8px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9em;
+  display: flex;
+  justify-content: space-between;
+}
+
+#error-banner {
+  display: none;
+  background-color: var(--tier-critical);
+  color: #000;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+}

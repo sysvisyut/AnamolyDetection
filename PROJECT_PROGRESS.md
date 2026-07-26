@@ -21,8 +21,8 @@
 | M11 | Orchestrator, Cold-Start & Drift Update | T1/T2 | Complete | 100% | None | Cold-Start Handler and gated EWMA updater implemented. EWMA updates only when fused score < 0.4, increments profile versions, and preserves high-risk/Insider Drift baselines. Drift suite: 8 tests, 100% module coverage. |
 | M12 | FastAPI Core & Inference Endpoint | T1 | Complete | 100% | None | All tests pass, integrated with orchestrator. |
 | M13 | Read Endpoints & Async Streaming | T1/T2 | Complete | 100% | None | Implemented streaming interface and historical data endpoints. All tests pass, integrated with `src/anomaly_detection/api/routers/` and `src/anomaly_detection/streaming/`. |
-| M14 | Dashboard UX | T1 | Pending | 0% | None | |
-| M15 | Model Evaluation & T3 Polish | T2/T3 | Pending | 0% | None | |
+| M14 | Dashboard UX | T1 | Complete | 100% | None | Built static SPA with vanilla HTML/JS/CSS for Analyst Dashboard (Boundary K). Served successfully without bundlers. Implemented ranked alert queue, entity details pane with explainability, and event history. |
+| M15 | Model Evaluation & T3 Polish | T2/T3 | Complete | 100% | None | Evaluation completed across standard and edge-case synthetic datasets; final polish applied to system parameters. |
 
 ## 2. Integration Status
 
@@ -30,7 +30,7 @@
 - **Feature Engineering -> Models:** Not Started
 - **Models -> Explainability:** Complete; orchestrated end-to-end via InferencePipeline with real fusion, classifier, and explainability components.
 - **Explainability -> Alert Store:** Not Started
-- **FastAPI -> Dashboard:** Not Started
+- **FastAPI -> Dashboard:** Complete (Integrated successfully in M14 over REST and SSE)
 - **Full End-to-End Streaming:** Not Started
 
 ## 3. Testing Status
